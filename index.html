@@ -2115,7 +2115,6 @@ function renderUnits() {
 
 /* =========================================================
    ਆਟੋ-ਯੂਨਿਟ ਬਣਾਉਣਾ (ਹਰ ਸ਼ੀਟ ਵਾਸਤੇ)
-   Combo ਸਰੋਤ = A1, Table ਰੇਂਜ = A11:F16
    ========================================================= */
 function autoCreateDefaultUnits() {
   units = [];
@@ -2191,6 +2190,10 @@ async function processExcelBuffer(arrayBuffer, fileName) {
 
     /* ਹਰ ਦਿਖਣ ਵਾਲੀ ਸ਼ੀਟ ਲਈ ਇੱਕ ਯੂਨਿਟ ਆਟੋ-ਬਣਾਓ */
     autoCreateDefaultUnits();
+
+    /* ਫਾਈਲ ਲੋਡ ਹੁਣੇ ਹੀ ਖੱਬਾ Excel ਪੈਨ ਲੁਕਾਓ */
+    excelHidden = true;
+    applyExcelVisibility();
 
     clearSourceHighlight(true);
     renderGrid();
