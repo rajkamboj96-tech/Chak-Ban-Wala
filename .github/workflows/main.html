@@ -1,0 +1,2259 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ਐਕਸਲ ਫਾਰਮ ਬਿਲਡਰ</title>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hyperformula@2.7.1/dist/hyperformula.full.min.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body { font-family: 'Segoe UI', 'Nirmala UI', Calibri, Arial, sans-serif;
+         background: #eceff1; color: #1a1a1a; }
+  .app { display: flex; height: 100vh; width: 100vw; }
+  .pane { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+  .pane.left { border-right: 2px solid #1e6b45; background: #fff; }
+
+  /* ===== ਖੱਬਾ ਟੂਲਬਾਰ ===== */
+  .toolbar { display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: linear-gradient(180deg, #217346, #1a5c39);
+    color: #fff; flex: 0 0 auto; flex-wrap: wrap; }
+  .upload-btn { display: inline-flex; align-items: center; gap: 7px;
+    background: #fff; color: #1a5c39;
+    padding: 7px 14px; border-radius: 5px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    border: none; white-space: nowrap; }
+  .upload-btn:hover { background: #e2f3ea; }
+  .file-name { font-size: 12.5px; opacity: .95; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .badge { background: rgba(255,255,255,.18);
+    padding: 3px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge.hidden-badge { background: rgba(255,180,60,.35); }
+  .badge.live-badge { background: rgba(255,235,120,.5); color: #5a4000; display: none; }
+  .badge.live-badge.show { display: inline-block; }
+  .badge.loading-badge { background: rgba(120,200,255,.5); color: #003a6b; display: none; }
+  .badge.loading-badge.show { display: inline-block; }
+
+  .pick-banner { display: none; padding: 9px 14px;
+    background: #fff8e1; border-bottom: 1px solid #ffe082;
+    color: #8a6d00; font-size: 13px; font-weight: 600;
+    align-items: center; justify-content: space-between; gap: 10px;
+    flex: 0 0 auto; }
+  .pick-banner.show { display: flex; }
+  .pick-banner button { background: #c62828; color: #fff; border: none;
+    padding: 5px 12px; border-radius: 4px; font-size: 12px;
+    cursor: pointer; font-weight: 600; }
+
+  /* ===== ਖੱਬਾ ਗਰਿੱਡ ===== */
+  .grid-wrap { position: relative; flex: 1 1 auto; min-height: 0;
+    overflow: auto; background: #fff; }
+  .empty-state { display: none; position: absolute; inset: 0;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; color: #9aa0a6; text-align: center; padding: 20px; }
+  .empty-state .icon { font-size: 46px; }
+  .empty-state p { margin: 0; font-size: 15px; }
+  .grid-wrap.is-empty .empty-state { display: flex; }
+
+  table.sheet { border-collapse: separate; border-spacing: 0; font-size: 13px; }
+  thead th { position: sticky; top: 0; z-index: 2;
+    background: #f1f1f1; color: #444;
+    font-weight: 600; font-size: 12px; height: 24px;
+    min-width: 96px; padding: 0 6px; text-align: center;
+    user-select: none;
+    border-right: 1px solid #cfcfcf;
+    border-bottom: 1px solid #b0b0b0; }
+  thead th.corner { left: 0; z-index: 4; min-width: 44px; width: 44px; background: #e4e4e4; }
+  tbody th { position: sticky; left: 0; z-index: 1;
+    background: #f1f1f1; color: #444;
+    font-weight: 500; font-size: 12px;
+    width: 44px; min-width: 44px; text-align: center;
+    user-select: none;
+    border-right: 1px solid #b0b0b0;
+    border-bottom: 1px solid #dedede; }
+  td.cell { position: relative;
+    min-width: 96px; height: 24px;
+    padding: 0 6px; background: #fff;
+    font-size: 13px; color: #1a1a1a;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    outline: none; cursor: cell;
+    border-right: 1px solid #e4e4e4;
+    border-bottom: 1px solid #e4e4e4;
+    transition: background-color .2s, box-shadow .2s; }
+  td.cell:hover { background: #f7fbf9; }
+  td.cell[contenteditable="true"]:focus {
+    outline: 2px solid #217346; outline-offset: -2px;
+    background: #fff; position: relative; z-index: 3; }
+  td.cell.has-formula::before {
+    content: "ƒx"; position: absolute; top: 0; right: 2px;
+    font-size: 9px; color: #217346; opacity: .7;
+    pointer-events: none; font-weight: 700; }
+  td.cell.has-validation { padding: 0; }
+  td.cell.has-validation select {
+    width: 100%; height: 100%;
+    border: none; background: #fff8e1;
+    font: inherit; font-size: 13px; color: #1a1a1a;
+    padding: 0 22px 0 6px; cursor: pointer; outline: none;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #217346 50%),
+                      linear-gradient(135deg, #217346 50%, transparent 50%);
+    background-position: calc(100% - 12px) 10px, calc(100% - 7px) 10px;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat; }
+  td.cell.has-validation select:focus { outline: 2px solid #217346; outline-offset: -2px; }
+  td.cell.has-validation select.flash { background-color: #ffecb3; }
+  .colhead.hl, .rowhead.hl {
+    background: #cfe9dc !important; color: #0f5132 !important; font-weight: 700; }
+
+  td.cell.source-hl {
+    background: #fff2b0 !important;
+    box-shadow: inset 0 0 0 2px #ff9800;
+    animation: srcPulse 1.2s ease-in-out infinite alternate; }
+  thead th.colhead.source-hl,
+  tbody th.rowhead.source-hl {
+    background: #ffb74d !important; color: #4a2800 !important; font-weight: 800 !important; }
+  @keyframes srcPulse {
+    from { background-color: #fff2b0; }
+    to   { background-color: #ffe082; } }
+
+  td.cell.sync-flash { animation: syncFlash .9s ease-out; }
+  @keyframes syncFlash {
+    0%   { background: #b2f5c9; box-shadow: inset 0 0 0 3px #16a34a; }
+    100% { background: #fff2b0; box-shadow: inset 0 0 0 2px #ff9800; } }
+
+  .grid-wrap.picking td.cell { cursor: crosshair !important; }
+  .grid-wrap.picking td.cell.pick-hl {
+    background: #cfe9dc !important;
+    box-shadow: inset 0 0 0 2px #217346; }
+
+  .sheet-tabs { flex: 0 0 auto; display: flex; align-items: flex-end;
+    gap: 2px; padding: 0 8px; background: #f3f3f3;
+    border-top: 1px solid #cfcfcf; min-height: 40px;
+    overflow-x: auto; overflow-y: hidden; }
+  .sheet-tabs::-webkit-scrollbar { height: 6px; }
+  .sheet-tabs::-webkit-scrollbar-thumb { background: #c0c0c0; border-radius: 3px; }
+  .tab { border: 1px solid transparent; border-bottom: none;
+    background: transparent; padding: 8px 16px;
+    font-size: 13px; font-family: inherit; color: #555;
+    cursor: pointer; border-radius: 6px 6px 0 0;
+    white-space: nowrap; transition: background .12s; }
+  .tab:hover { background: #e6e6e6; }
+  .tab.active { background: #fff; color: #217346; font-weight: 700;
+    border-color: #cfcfcf; box-shadow: inset 0 3px 0 #217346; }
+
+  /* ===== ਸੱਜਾ ਪਾਸਾ ===== */
+  .pane.right {
+    background: linear-gradient(135deg, #f0f7f4 0%, #eaf3fb 50%, #fdf4e8 100%);
+    overflow: hidden; }
+
+  .right-toolbar { display: flex; gap: 8px; padding: 10px 12px;
+    background: linear-gradient(120deg, #6a3d9a 0%, #8e44ad 50%, #9b59b6 100%);
+    border-bottom: 2px solid #5b2c87;
+    flex-wrap: wrap; flex: 0 0 auto; align-items: center;
+    box-shadow: 0 2px 6px rgba(106,61,154,.25); }
+  .right-toolbar button {
+    color: #fff; border: none;
+    border-radius: 6px; padding: 8px 14px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: all .15s;
+    box-shadow: 0 2px 4px rgba(0,0,0,.15); }
+
+  #btnAddUnit { background: linear-gradient(135deg, #27ae60, #16a085); }
+  #btnAddUnit:hover { background: linear-gradient(135deg, #219a52, #128a75); transform: translateY(-1px); }
+
+  #btnSaveRemove { background: linear-gradient(135deg, #00bcd4, #00838f); }
+  #btnSaveRemove:hover { background: linear-gradient(135deg, #00acc1, #006064); transform: translateY(-1px); }
+  #btnSaveRemove.remove-state { background: linear-gradient(135deg, #e91e63, #ad1457); }
+  #btnSaveRemove.remove-state:hover { background: linear-gradient(135deg, #d81b60, #880e4f); transform: translateY(-1px); }
+
+  #btnHideExcel { margin-left: auto; background: linear-gradient(135deg, #3498db, #2980b9); }
+  #btnHideExcel:hover { background: linear-gradient(135deg, #2c85c2, #216fa0); transform: translateY(-1px); }
+  #btnHideExcel.hidden-state { background: linear-gradient(135deg, #f39c12, #e67e22); }
+  #btnHideExcel.hidden-state:hover { background: linear-gradient(135deg, #d98a0c, #c46c0f); }
+
+  #btnLock { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+  #btnLock:hover { background: linear-gradient(135deg, #d13a2b, #a82e20); transform: translateY(-1px); }
+  #btnLock.locked { background: linear-gradient(135deg, #7f8c8d, #576574); }
+  #btnLock.locked:hover { background: linear-gradient(135deg, #6c7a7b, #47535d); }
+
+  .unit-selector-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: linear-gradient(90deg, #fce4b6 0%, #fde8c8 100%);
+    border-bottom: 2px solid #f0c67a;
+    flex: 0 0 auto;
+    box-shadow: 0 1px 3px rgba(240,198,122,.3); }
+  .unit-selector-bar label {
+    font-size: 13px; font-weight: 700; color: #8a5a00;
+    white-space: nowrap; }
+  .unit-selector-bar select {
+    flex: 1; min-width: 0;
+    padding: 8px 12px; font-size: 13.5px;
+    border: 2px solid #e0a94a; border-radius: 6px;
+    background: #fff; font-family: inherit; font-weight: 700;
+    color: #6a4200; cursor: pointer; outline: none;
+    transition: border-color .15s, box-shadow .15s;
+    box-shadow: 0 1px 3px rgba(224,169,74,.2); }
+  .unit-selector-bar select:focus {
+    border-color: #d18b1f;
+    box-shadow: 0 0 0 3px rgba(224,169,74,.25); }
+
+  .right-content { flex: 1 1 auto; overflow-y: auto;
+    padding: 16px 16px 30px; }
+  .empty-msg { text-align: center; color: #7a8899;
+    margin-top: 40px; font-size: 14px; line-height: 1.9; }
+
+  /* ===== ਯੂਨਿਟ ਕਾਰਡ ===== */
+  .unit-card {
+    background: linear-gradient(180deg, #ffffff 0%, #f9fcff 100%);
+    border: 2px solid #c8d9e8;
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 14px;
+    box-shadow: 0 4px 12px rgba(100,140,180,.12),
+                inset 0 1px 0 #fff;
+    transition: border-color .2s, box-shadow .2s, transform .15s;
+    position: relative; overflow: hidden; }
+  .unit-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg,
+      #e74c3c, #f39c12, #f1c40f, #2ecc71, #1abc9c, #3498db, #9b59b6);
+    opacity: .85; }
+  .unit-card.active-src {
+    border-color: #ff9800;
+    box-shadow: 0 0 0 3px rgba(255,152,0,.22),
+                0 4px 14px rgba(255,152,0,.15); }
+
+  .unit-head { display: flex; justify-content: space-between;
+    align-items: center; gap: 8px; margin-bottom: 14px;
+    padding-bottom: 12px; border-bottom: 2px dashed #d9e5ee; }
+  .unit-name-input {
+    flex: 1; font-size: 17px; font-weight: 800;
+    color: #1a4d7a;
+    background: linear-gradient(90deg, #e8f4fc 0%, #f4faff 100%);
+    border: 2px solid #b3d4ec;
+    padding: 7px 12px; border-radius: 8px;
+    font-family: inherit; min-width: 0;
+    letter-spacing: .3px;
+    transition: border-color .15s, box-shadow .15s; }
+  .unit-name-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52,152,219,.2);
+    outline: none;
+    background: #fff; }
+  .unit-name-input[readonly] {
+    background: #e0e0e0;
+    color: #666;
+    border-color: #bdbdbd;
+    cursor: not-allowed; }
+
+  .unit-del { background: linear-gradient(135deg, #ff7676, #e74c3c);
+    color: #fff; border: none;
+    border-radius: 6px; padding: 7px 12px; font-size: 12.5px;
+    cursor: pointer; font-weight: 700; font-family: inherit;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(231,76,60,.3);
+    transition: transform .1s, box-shadow .15s; }
+  .unit-del:hover { transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(231,76,60,.4); }
+
+  .right-content.locked .unit-del { display: none !important; }
+  .right-content.locked .unit-head { display: none !important; }
+  .right-content.locked .unit-name-input { display: none !important; }
+
+  .unit-section { margin-bottom: 14px; }
+  .unit-section:last-child { margin-bottom: 0; }
+
+  .ctrl-select { width: 100%; padding: 10px 12px; font-size: 13.5px;
+    border: 2px solid #b3d4ec; border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #f4faff 100%);
+    font-family: inherit; font-weight: 600;
+    color: #1a4d7a; cursor: pointer; outline: none;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+    box-shadow: 0 1px 3px rgba(100,140,180,.1); }
+  .ctrl-select:focus, .ctrl-select:active {
+    border-color: #3498db;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(52,152,219,.2); }
+  .ctrl-select.synced {
+    background: linear-gradient(180deg, #f0fdf4 0%, #e8fbf0 100%);
+    border-color: #86d4a4; }
+
+  /* ===== ਟੇਬਲ — ਰੰਗ ਬਰੰਗੇ ਸੈੱਲ ===== */
+  .ctrl-table { width: 100%; border-collapse: separate;
+    border-spacing: 2px;
+    font-size: 12.5px;
+    border-radius: 8px; overflow: hidden;
+    background: #cfd8dc;
+    padding: 2px;
+    box-shadow: 0 2px 6px rgba(100,140,180,.15); }
+  .ctrl-table td {
+    padding: 7px 10px; text-align: left;
+    max-width: 220px; overflow: hidden; text-overflow: ellipsis;
+    font-weight: 500;
+    color: #2c3e50;
+    border-radius: 4px;
+    transition: transform .1s, filter .15s;
+    white-space: nowrap; }
+
+  .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+1) { background: #e3f2fd; }
+  .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+2) { background: #fce4ec; }
+  .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+3) { background: #e8f5e9; }
+  .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+4) { background: #fff8e1; }
+  .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+5) { background: #f3e5f5; }
+  .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+6) { background: #e0f7fa; }
+
+  .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+1) { background: #fce4ec; }
+  .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+2) { background: #e8f5e9; }
+  .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+3) { background: #fff8e1; }
+  .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+4) { background: #f3e5f5; }
+  .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+5) { background: #e0f7fa; }
+  .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+6) { background: #e3f2fd; }
+
+  .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+1) { background: #e8f5e9; }
+  .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+2) { background: #fff8e1; }
+  .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+3) { background: #f3e5f5; }
+  .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+4) { background: #e0f7fa; }
+  .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+5) { background: #e3f2fd; }
+  .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+6) { background: #fce4ec; }
+
+  .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+1) { background: #fff8e1; }
+  .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+2) { background: #f3e5f5; }
+  .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+3) { background: #e0f7fa; }
+  .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+4) { background: #e3f2fd; }
+  .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+5) { background: #fce4ec; }
+  .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+6) { background: #e8f5e9; }
+
+  .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+1) { background: #f3e5f5; }
+  .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+2) { background: #e0f7fa; }
+  .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+3) { background: #e3f2fd; }
+  .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+4) { background: #fce4ec; }
+  .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+5) { background: #e8f5e9; }
+  .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+6) { background: #fff8e1; }
+
+  .ctrl-table tr:nth-child(6n+6) td:nth-child(6n+1) { background: #e0f7fa; }
+  .ctrl-table tr:nth-child(6n+6) td:nth-child(6n+2) { background: #e3f2fd; }
+  .ctrl-table tr:nth-child(6n+6) td:nth-child(6n+3) { background: #fce4ec; }
+  .ctrl-table tr:nth-child(6n+6) td:nth-child(6n+4) { background: #e8f5e9; }
+  .ctrl-table tr:nth-child(6n+6) td:nth-child(6n+5) { background: #fff8e1; }
+  .ctrl-table tr:nth-child(6n+6) td:nth-child(6n+6) { background: #f3e5f5; }
+
+  .ctrl-table tr:first-child td {
+    background: linear-gradient(135deg, #34495e, #2c3e50) !important;
+    color: #fff; font-weight: 800;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    font-size: 11.5px;
+    text-shadow: 0 1px 2px rgba(0,0,0,.2); }
+
+  .ctrl-table td:hover {
+    filter: brightness(0.94);
+    transform: scale(1.02); }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0;
+    background: rgba(20,40,60,.5); z-index: 1000;
+    align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 12px;
+    width: 92%; max-width: 560px;
+    padding: 20px 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.3);
+    max-height: 92vh; overflow-y: auto; }
+  .modal.pw-modal { max-width: 380px; }
+  .modal h3 { margin: 0 0 16px; font-size: 16px;
+    color: #6a3d9a;
+    border-bottom: 2px solid #f0e6f6;
+    padding-bottom: 10px;
+    display: flex; align-items: center; gap: 8px; }
+  .modal .form-group { margin-bottom: 14px; }
+  .modal label.lbl { display: block; font-size: 12.5px; color: #5a6a7a;
+    margin-bottom: 6px; font-weight: 700; }
+  .modal input[type="text"],
+  .modal input[type="password"] { width: 100%; padding: 9px 12px; font-size: 13px;
+    border: 2px solid #c8d9e8; border-radius: 6px;
+    font-family: inherit; outline: none;
+    transition: border-color .15s, box-shadow .15s; }
+  .modal input[type="text"]:focus,
+  .modal input[type="password"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52,152,219,.15); }
+  .radio-group { display: flex; gap: 14px; margin: 6px 0 10px;
+    flex-wrap: wrap; }
+  .radio-group label { display: inline-flex; align-items: center;
+    gap: 6px; font-weight: 600; cursor: pointer;
+    font-size: 13px; color: #2c3e50; padding: 5px 10px;
+    border-radius: 5px; transition: background .12s; }
+  .radio-group label:hover { background: #f0f7fb; }
+  .radio-group input { margin: 0; cursor: pointer;
+    accent-color: #6a3d9a; }
+
+  .modal-section {
+    border: 2px solid #e0e8ef; border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 14px;
+    background: linear-gradient(180deg, #fbfdff 0%, #f5faff 100%); }
+  .modal-section:nth-of-type(2) {
+    background: linear-gradient(180deg, #fffdf7 0%, #fff9ee 100%);
+    border-color: #f0d9a8; }
+  .modal-section-title {
+    font-size: 12.5px; font-weight: 800;
+    color: #6a3d9a;
+    text-transform: uppercase;
+    letter-spacing: .6px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px; }
+  .modal-section:nth-of-type(2) .modal-section-title {
+    color: #b06a00; }
+  .modal-section-title .num-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, #9b59b6, #6a3d9a);
+    color: #fff;
+    font-size: 12px; font-weight: 800;
+    box-shadow: 0 2px 4px rgba(106,61,154,.3); }
+  .modal-section:nth-of-type(2) .modal-section-title .num-badge {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    box-shadow: 0 2px 4px rgba(230,126,34,.3); }
+
+  .pick-info { padding: 9px 12px; background: #fffbe6;
+    border: 1px solid #ffe082; border-radius: 6px;
+    font-size: 12px; color: #8a6d00; margin-top: 8px;
+    display: none; font-weight: 500; }
+  .pick-info.show { display: block; }
+
+  .pw-error { padding: 9px 12px; background: #ffebee;
+    border: 1px solid #ef9a9a; color: #b71c1c;
+    font-size: 12.5px; font-weight: 700;
+    border-radius: 6px; margin-top: 10px; }
+
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px;
+    margin-top: 18px; padding-top: 14px;
+    border-top: 1px solid #eef1f2; }
+  .modal-actions button { padding: 9px 20px; border-radius: 6px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    font-family: inherit; border: none;
+    transition: transform .1s, box-shadow .15s; }
+  .modal-actions .btn-cancel {
+    background: #ecf0f1; color: #5a6a7a; }
+  .modal-actions .btn-cancel:hover { background: #dde4e6; }
+  .modal-actions .btn-ok {
+    background: linear-gradient(135deg, #27ae60, #16a085);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(39,174,96,.3); }
+  .modal-actions .btn-ok:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(39,174,96,.4); }
+  .modal-actions .btn-ok.danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    box-shadow: 0 2px 6px rgba(231,76,60,.3); }
+  .modal-actions .btn-ok.danger:hover {
+    box-shadow: 0 4px 10px rgba(231,76,60,.4); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: linear-gradient(135deg, #27ae60, #16a085);
+    color: #fff; padding: 12px 24px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 700;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    opacity: 0; transition: all .3s ease;
+    z-index: 2000; pointer-events: none;
+    max-width: 90vw; text-align: center; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .right-content::-webkit-scrollbar { width: 10px; }
+  .right-content::-webkit-scrollbar-track { background: #eef4f9; }
+  .right-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #a8c6e0, #7fa8c9);
+    border-radius: 5px;
+    border: 2px solid #eef4f9; }
+  .right-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #8fb4d4, #5e8cb0); }
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <section class="pane left" id="leftPane">
+    <div class="toolbar">
+      <label class="upload-btn">
+        📁 ਐਕਸਲ ਫਾਈਲ ਚੁਣੋ
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.xlsm,.xlsb" hidden>
+      </label>
+      <span class="file-name" id="fileName">ਕੋਈ ਫਾਈਲ ਨਹੀਂ ਚੁਣੀ ਗਈ</span>
+      <span class="badge loading-badge" id="loadingBadge">⏳ ਲੋਡ ਹੋ ਰਹੀ ਹੈ…</span>
+      <span class="badge" id="engineBadge" style="display:none">ƒx ਚਾਲੂ</span>
+      <span class="badge hidden-badge" id="hiddenBadge" style="display:none">ਹਾਈਡ ਲਾਗੂ</span>
+      <span class="badge live-badge" id="liveBadge">🔆 ਸਰੋਤ ਹਾਈਲਾਈਟ</span>
+    </div>
+
+    <div class="pick-banner" id="pickBanner">
+      <span id="pickMsg">ਸ਼ੀਟ 'ਤੇ ਕਲਿੱਕ ਕਰੋ…</span>
+      <button id="pickCancel">ਰੱਦ ਕਰੋ</button>
+    </div>
+
+    <div class="grid-wrap is-empty" id="gridWrap">
+      <div class="empty-state">
+        <div class="icon">📊</div>
+        <p>ਐਕਸਲ ਫਾਈਲ ਲੋਡ ਹੋ ਰਹੀ ਹੈ…</p>
+        <p style="font-size:13px">ਜੇ ਆਪਣੇ-ਆਪ ਨਾ ਲੋਡ ਹੋਵੇ ਤਾਂ “ਐਕਸਲ ਫਾਈਲ ਚੁਣੋ” ਬਟਨ ਦਬਾਓ</p>
+      </div>
+      <table class="sheet" id="sheetTable"></table>
+    </div>
+
+    <div class="sheet-tabs" id="sheetTabs"></div>
+  </section>
+
+  <section class="pane right">
+    <div class="right-toolbar">
+      <button id="btnAddUnit">➕ ਨਵਾਂ ਟੇਬਲ ਸ਼ਾਮਲ ਕਰੋ</button>
+      <button id="btnSaveRemove">💾 Save Data to Browser</button>
+      <button id="btnHideExcel">🙈 Excel ਲੁਕਾਓ</button>
+      <button id="btnLock" title="ਲਾਕ/ਅਨਲਾਕ">🔓 Unlock</button>
+    </div>
+
+    <div class="unit-selector-bar" id="unitSelectorBar" style="display:none">
+      <label for="unitSelector">ਟੇਬਲ ਚੁਣੋ:</label>
+      <select id="unitSelector"></select>
+    </div>
+
+    <div class="right-content" id="controlsContainer">
+      <div class="empty-msg">
+        ਹਾਲੇ ਕੋਈ ਟੇਬਲ ਨਹੀਂ ਜੋੜਿਆ ਗਿਆ
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>➕ ਨਵਾਂ ਟੇਬਲ ਸ਼ਾਮਲ ਕਰੋ</h3>
+
+    <div class="modal-section">
+      <div class="modal-section-title">
+        <span class="num-badge">1</span> ਕੰਬੋ ਬੌਕਸ ਦਾ ਸਰੋਤ
+      </div>
+
+      <div class="form-group">
+        <label class="lbl">ਕਿਸ ਕਿਸਮ ਦਾ ਸਰੋਤ:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="comboSrcType" value="cellList" checked> ਸੈੱਲ ਦੀ ਲਿਸਟ ਕਾਪੀ</label>
+          <label><input type="radio" name="comboSrcType" value="range"> ਰੇਂਜ ਤੋਂ ਲਵੋ</label>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0">
+        <label class="lbl" id="comboSrcLabel">ਉਹ ਸੈੱਲ ਜਿਸ ਵਿੱਚ ਲਿਸਟ ਹੈ (ਜਿਵੇਂ A2):</label>
+        <div class="radio-group">
+          <label><input type="radio" name="comboMode" value="manual" checked> ਨਾਮ ਲਿਖੋ</label>
+          <label><input type="radio" name="comboMode" value="pick"> ਸ਼ੀਟ ਤੋਂ ਚੁਣੋ</label>
+        </div>
+        <input type="text" id="comboRange" placeholder="ਜਿਵੇਂ: A2">
+        <div class="pick-info" id="comboPickInfo">ਸ਼ੀਟ 'ਤੇ ਸੈੱਲ ਕਲਿੱਕ ਕਰੋ।</div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">
+        <span class="num-badge">2</span> ਟੇਬਲ ਦੀ ਰੇਂਜ
+      </div>
+
+      <div class="form-group" style="margin-bottom:0">
+        <label class="lbl">ਕਿਹੜੇ ਤੋਂ ਕਿਹੜੇ ਸੈੱਲ:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="tableMode" value="manual" checked> ਨਾਮ ਲਿਖੋ</label>
+          <label><input type="radio" name="tableMode" value="pick"> ਸ਼ੀਟ ਤੋਂ ਚੁਣੋ</label>
+        </div>
+        <input type="text" id="tableRange" placeholder="ਜਿਵੇਂ: A1:C10">
+        <div class="pick-info" id="tablePickInfo">ਸ਼ੀਟ 'ਤੇ ਸ਼ੁਰੂਆਤੀ ਅਤੇ ਅੰਤਿਮ ਸੈੱਲ ਕਲਿੱਕ ਕਰੋ।</div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="modalCancel">ਰੱਦ ਕਰੋ</button>
+      <button class="btn-ok" id="modalOk">ਠੀਕ ਹੈ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pwModalOverlay">
+  <div class="modal pw-modal">
+    <h3 id="pwTitle">🔒 ਅਨਲਾਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ</h3>
+
+    <div class="form-group" style="margin-bottom:0">
+      <label class="lbl" for="pwInput">ਪਾਸਵਰਡ ਲਿਖੋ:</label>
+      <input type="password" id="pwInput" placeholder="ਪਾਸਵਰਡ" autocomplete="off">
+      <div class="pw-error" id="pwError" style="display:none">❌ ਗਲਤ ਪਾਸਵਰਡ!</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="pwCancel">ਰੱਦ ਕਰੋ</button>
+      <button class="btn-ok" id="pwOk">ਅਨਲਾਕ ਕਰੋ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   ਗਲੋਬਲ
+   ========================================================= */
+const fileInput   = document.getElementById('fileInput');
+const fileNameEl  = document.getElementById('fileName');
+const gridWrap    = document.getElementById('gridWrap');
+const table       = document.getElementById('sheetTable');
+const sheetTabs   = document.getElementById('sheetTabs');
+const engineBadge = document.getElementById('engineBadge');
+const hiddenBadge = document.getElementById('hiddenBadge');
+const liveBadge   = document.getElementById('liveBadge');
+const loadingBadge = document.getElementById('loadingBadge');
+const pickBanner  = document.getElementById('pickBanner');
+const pickMsg     = document.getElementById('pickMsg');
+const pickCancel  = document.getElementById('pickCancel');
+const leftPane    = document.getElementById('leftPane');
+
+const controlsContainer = document.getElementById('controlsContainer');
+const unitSelectorBar   = document.getElementById('unitSelectorBar');
+const unitSelector      = document.getElementById('unitSelector');
+const btnAddUnit  = document.getElementById('btnAddUnit');
+const btnSaveRemove = document.getElementById('btnSaveRemove');
+const btnHideExcel = document.getElementById('btnHideExcel');
+const btnLock     = document.getElementById('btnLock');
+
+const modalOverlay  = document.getElementById('modalOverlay');
+const comboRange    = document.getElementById('comboRange');
+const tableRange    = document.getElementById('tableRange');
+const comboSrcLabel = document.getElementById('comboSrcLabel');
+const comboPickInfo = document.getElementById('comboPickInfo');
+const tablePickInfo = document.getElementById('tablePickInfo');
+const modalCancel   = document.getElementById('modalCancel');
+const modalOk       = document.getElementById('modalOk');
+
+const pwModalOverlay = document.getElementById('pwModalOverlay');
+const pwTitle        = document.getElementById('pwTitle');
+const pwInput        = document.getElementById('pwInput');
+const pwError        = document.getElementById('pwError');
+const pwCancel       = document.getElementById('pwCancel');
+const pwOk           = document.getElementById('pwOk');
+
+const toastEl = document.getElementById('toast');
+
+const MIN_ROWS = 25, MIN_COLS = 15, MAX_RENDER_ROWS = 1000;
+const UNLOCK_PASSWORD = '2005';
+const STORAGE_KEY = 'excelFormBuilderData_v1';
+const LOCK_STATE_KEY = 'excelFormBuilderLockState_v1';
+
+/* ਐਕਸਲ ਫਾਈਲ ਦਾ ਨਾਮ (GitHub ਤੇ ਇਸੇ ਨਾਮ ਨਾਲ ਰੱਖੀ ਜਾਵੇ) */
+const BUNDLED_EXCEL_FILE = 'Main ( Chak Dab - Ban Wala).xlsx';
+
+/* Auto-unit defaults (ਐਕਸਲ ਫਾਈਲ ਲੋਡ ਹੋਣ 'ਤੇ ਹਰ ਸ਼ੀਟ ਵਾਸਤੇ) */
+const AUTO_COMBO_CELL = 'A1';
+const AUTO_TABLE_START = 'A11';
+const AUTO_TABLE_END   = 'F16';
+
+let hf = null;
+let sheets = {};
+let sheetOrder = [];
+let visibleSheetOrder = [];
+let active = null;
+let selected = { r: 0, c: 0 };
+let currentFileName = '';
+let validationCache = {};
+
+let units = [];
+let unitCounter = 1;
+let selectedUnitId = null;
+
+let globalLocked = false;
+let excelHidden = false;
+
+let modalState = { comboCellListPick: null, comboRangePick: null, tablePick: null };
+let pickingState = { active: false, mode: null, target: null, start: null, end: null };
+
+let sourceHlTimer = null;
+let pwPurpose = 'unlock';
+let toastTimer = null;
+
+/* =========================================================
+   Toast
+   ========================================================= */
+function showToast(msg, isError) {
+  toastEl.textContent = msg;
+  toastEl.style.background = isError
+    ? 'linear-gradient(135deg, #e74c3c, #c0392b)'
+    : 'linear-gradient(135deg, #27ae60, #16a085)';
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+}
+
+/* =========================================================
+   Lock state persistence
+   ========================================================= */
+function persistLockState() {
+  try {
+    localStorage.setItem(LOCK_STATE_KEY, JSON.stringify({
+      locked: globalLocked,
+      updatedAt: Date.now()
+    }));
+  } catch (e) {}
+}
+function restoreLockState() {
+  try {
+    const raw = localStorage.getItem(LOCK_STATE_KEY);
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    globalLocked = !!state.locked;
+  } catch (e) {}
+}
+
+/* =========================================================
+   Save / Load / Remove main data
+   ========================================================= */
+function hasSavedData() {
+  try { return localStorage.getItem(STORAGE_KEY) !== null; }
+  catch (e) { return false; }
+}
+
+function saveDataToBrowser() {
+  if (!sheets || !Object.keys(sheets).length) {
+    alert('ਪਹਿਲਾਂ ਐਕਸਲ ਫਾਈਲ ਅਪਲੋਡ ਕਰੋ।');
+    return false;
+  }
+  try {
+    const serializedSheets = {};
+    for (const name in sheets) {
+      const s = sheets[name];
+      serializedSheets[name] = {
+        aoa: s.aoa || [['']],
+        validations: s.validations || {},
+        hiddenRows: Array.from(s.hiddenRows || []),
+        hiddenCols: Array.from(s.hiddenCols || []),
+        hidden: !!s.hidden
+      };
+    }
+    const state = {
+      version: 1,
+      savedAt: Date.now(),
+      currentFileName: currentFileName,
+      sheets: serializedSheets,
+      sheetOrder: sheetOrder.slice(),
+      visibleSheetOrder: visibleSheetOrder.slice(),
+      active: active,
+      units: units,
+      unitCounter: unitCounter,
+      selectedUnitId: selectedUnitId,
+      excelHidden: excelHidden
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    persistLockState();
+    return true;
+  } catch (err) {
+    console.error('Save failed:', err);
+    return false;
+  }
+}
+
+function removeDataFromBrowser() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    return true;
+  } catch (err) { return false; }
+}
+
+function loadSavedData() {
+  let raw;
+  try { raw = localStorage.getItem(STORAGE_KEY); }
+  catch (e) { return false; }
+  if (!raw) return false;
+  try {
+    const state = JSON.parse(raw);
+    currentFileName = state.currentFileName || '';
+    fileNameEl.textContent = currentFileName || 'ਕੋਈ ਫਾਈਲ ਨਹੀਂ ਚੁਣੀ ਗਈ';
+    sheets = {};
+    const inSheets = state.sheets || {};
+    for (const name in inSheets) {
+      const s = inSheets[name];
+      sheets[name] = {
+        aoa: s.aoa || [['']],
+        validations: s.validations || {},
+        hiddenRows: new Set(s.hiddenRows || []),
+        hiddenCols: new Set(s.hiddenCols || []),
+        hidden: !!s.hidden
+      };
+    }
+    sheetOrder = state.sheetOrder || Object.keys(sheets);
+    visibleSheetOrder = state.visibleSheetOrder || sheetOrder.filter(n => !sheets[n]?.hidden);
+    active = state.active || (visibleSheetOrder[0] || sheetOrder[0] || null);
+    units = state.units || [];
+    unitCounter = state.unitCounter || (units.length + 1);
+    selectedUnitId = state.selectedUnitId || (units.length ? units[0].id : null);
+    excelHidden = !!state.excelHidden;
+
+    const aoaPerSheet = {};
+    sheetOrder.forEach(n => {
+      if (sheets[n]) aoaPerSheet[n] = sheets[n].aoa;
+    });
+    if (Object.keys(aoaPerSheet).length) {
+      buildFormulaEngine(aoaPerSheet);
+    }
+    const anyHidden = sheetOrder.some(n =>
+      sheets[n] && (sheets[n].hidden ||
+                    (sheets[n].hiddenRows && sheets[n].hiddenRows.size > 0) ||
+                    (sheets[n].hiddenCols && sheets[n].hiddenCols.size > 0)));
+    hiddenBadge.style.display = anyHidden ? 'inline-block' : 'none';
+    selected = { r: 0, c: 0 };
+    validationCache = {};
+    applyExcelVisibility();
+    renderGrid();
+    renderTabs();
+    renderUnits();
+    applyLockState();
+    return true;
+  } catch (err) {
+    console.error('Load failed:', err);
+    return false;
+  }
+}
+
+function updateSaveRemoveButton() {
+  if (hasSavedData()) {
+    btnSaveRemove.textContent = '🗑️ Remove Data From Browser';
+    btnSaveRemove.classList.add('remove-state');
+    btnSaveRemove.title = 'ਬ੍ਰਾਊਜ਼ਰ ਤੋਂ ਸੇਵ ਕੀਤਾ ਡਾਟਾ ਹਟਾਓ (ਪਾਸਵਰਡ ਲੋੜੀਂਦਾ)';
+  } else {
+    btnSaveRemove.textContent = '💾 Save Data to Browser';
+    btnSaveRemove.classList.remove('remove-state');
+    btnSaveRemove.title = 'ਮੌਜੂਦਾ ਸੈਸ਼ਨ ਦਾ ਡਾਟਾ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਸੇਵ ਕਰੋ';
+  }
+}
+
+btnSaveRemove.addEventListener('click', () => {
+  if (hasSavedData()) {
+    openPasswordModal('remove');
+  } else {
+    const ok = saveDataToBrowser();
+    if (ok) {
+      updateSaveRemoveButton();
+      showToast('ਡਾਟਾ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਸੇਵ ਹੋ ਗਿਆ ✓');
+    } else {
+      showToast('ਡਾਟਾ ਸੇਵ ਕਰਨ ਵਿੱਚ ਗਲਤੀ ਆਈ', true);
+    }
+  }
+});
+
+/* =========================================================
+   ਮੂਲ ਫੰਕਸ਼ਨ
+   ========================================================= */
+function colLetter(i) {
+  let s = '', n = i + 1;
+  while (n > 0) {
+    const m = (n - 1) % 26;
+    s = String.fromCharCode(65 + m) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+}
+function parseCell(ref) {
+  const m = String(ref).trim().match(/^\$?([A-Z]+)\$?(\d+)$/i);
+  if (!m) return null;
+  let col = 0;
+  for (const ch of m[1].toUpperCase()) col = col * 26 + (ch.charCodeAt(0) - 64);
+  return { r: parseInt(m[2], 10) - 1, c: col - 1 };
+}
+function cellRef(r, c) { return colLetter(c) + (r + 1); }
+function parseRange(str) {
+  if (!str) return null;
+  const parts = String(str).replace(/\$/g, '').trim().split(':');
+  const s = parseCell(parts[0]);
+  if (!s) return null;
+  const e = parts[1] ? parseCell(parts[1]) : s;
+  if (!e) return null;
+  return {
+    start: { r: Math.min(s.r, e.r), c: Math.min(s.c, e.c) },
+    end:   { r: Math.max(s.r, e.r), c: Math.max(s.c, e.c) }
+  };
+}
+function rangeToString(a, b) {
+  const s = cellRef(a.r, a.c), e = cellRef(b.r, b.c);
+  return s === e ? s : (s + ':' + e);
+}
+function parseSqref(sqref) {
+  const cells = [];
+  String(sqref).trim().split(/\s+/).forEach(ref => {
+    const rng = parseRange(ref);
+    if (!rng) return;
+    for (let r = rng.start.r; r <= rng.end.r; r++)
+      for (let c = rng.start.c; c <= rng.end.c; c++)
+        cells.push({ r, c });
+  });
+  return cells;
+}
+function getHfValue(values, r, c) {
+  if (!values || !values[r]) return '';
+  const v = values[r][c];
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'object') {
+    if (v.value !== undefined) return v.value;
+    if (v.type === 'ERROR') return v.value || '#ERROR!';
+    return String(v);
+  }
+  return v;
+}
+function displayValue(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'object' && v.value !== undefined) return String(v.value);
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  return String(v);
+}
+function getCellValue(sheetName, ref) {
+  if (!hf || !sheetName || !ref) return '';
+  const c = parseCell(ref);
+  if (!c) return '';
+  const hfId = hf.getSheetId(sheetName);
+  if (hfId === undefined || hfId === null) return '';
+  try {
+    const vals = hf.getSheetValues(hfId);
+    return displayValue(getHfValue(vals, c.r, c.c));
+  } catch (e) { return ''; }
+}
+function parseRangeRefWithSheet(rangeRef, defaultSheet) {
+  let sheetName = defaultSheet, ref = rangeRef;
+  if (ref.includes('!')) {
+    const p = ref.split('!');
+    sheetName = p[0].replace(/^'|'$/g, '');
+    ref = p[1];
+  }
+  const rng = parseRange(ref);
+  if (!rng) return null;
+  return { sheet: sheetName, start: rng.start, end: rng.end };
+}
+function nextUnitName() {
+  if (units.length === 0) return 'Table one';
+  return 'Table ' + (units.length + 1);
+}
+
+/* =========================================================
+   Excel ਪੈਨ ਲੁਕਾਓ / ਦਿਖਾਓ
+   ========================================================= */
+function applyExcelVisibility() {
+  leftPane.style.display = excelHidden ? 'none' : '';
+  if (excelHidden) {
+    btnHideExcel.textContent = '👁️ Excel ਦਿਖਾਓ';
+    btnHideExcel.classList.add('hidden-state');
+  } else {
+    btnHideExcel.textContent = '🙈 Excel ਲੁਕਾਓ';
+    btnHideExcel.classList.remove('hidden-state');
+  }
+}
+btnHideExcel.addEventListener('click', () => {
+  excelHidden = !excelHidden;
+  applyExcelVisibility();
+});
+function ensureExcelVisible() {
+  if (excelHidden) {
+    excelHidden = false;
+    applyExcelVisibility();
+  }
+}
+
+/* =========================================================
+   ਹਾਈਲਾਈਟ
+   ========================================================= */
+function clearSourceHighlight(immediate) {
+  if (sourceHlTimer) { clearTimeout(sourceHlTimer); sourceHlTimer = null; }
+  const doClear = () => {
+    table.querySelectorAll('.source-hl').forEach(el => el.classList.remove('source-hl'));
+    controlsContainer.querySelectorAll('.unit-card.active-src')
+      .forEach(el => el.classList.remove('active-src'));
+    liveBadge.classList.remove('show');
+  };
+  if (immediate) doClear();
+  else sourceHlTimer = setTimeout(doClear, 150);
+}
+
+function highlightRanges(ranges, unitId) {
+  if (!ranges || !ranges.length) return;
+  if (sourceHlTimer) { clearTimeout(sourceHlTimer); sourceHlTimer = null; }
+
+  const firstSheet = ranges[0].sheet;
+  if (active !== firstSheet && visibleSheetOrder.includes(firstSheet)) {
+    active = firstSheet;
+    selected = { r: 0, c: 0 };
+    validationCache[active] = computeValidationsForSheet(active);
+    renderGrid();
+    renderTabs();
+  }
+
+  table.querySelectorAll('.source-hl').forEach(el => el.classList.remove('source-hl'));
+  controlsContainer.querySelectorAll('.unit-card.active-src')
+    .forEach(el => el.classList.remove('active-src'));
+
+  let firstCell = null;
+  ranges.forEach(rng => {
+    if (rng.sheet !== active) return;
+    const s = parseCell(rng.startRef);
+    const e = parseCell(rng.endRef || rng.startRef);
+    if (!s || !e) return;
+    const r1 = Math.min(s.r, e.r), r2 = Math.max(s.r, e.r);
+    const c1 = Math.min(s.c, e.c), c2 = Math.max(s.c, e.c);
+
+    for (let c = c1; c <= c2; c++) {
+      const th = table.querySelector(`thead th.colhead[data-c="${c}"]`);
+      if (th) th.classList.add('source-hl');
+    }
+    for (let r = r1; r <= r2; r++) {
+      const th = table.querySelector(`tbody th.rowhead[data-r="${r}"]`);
+      if (th) th.classList.add('source-hl');
+      for (let c = c1; c <= c2; c++) {
+        const td = table.querySelector(`td.cell[data-r="${r}"][data-c="${c}"]`);
+        if (td) {
+          td.classList.add('source-hl');
+          if (!firstCell) firstCell = td;
+        }
+      }
+    }
+  });
+
+  if (firstCell) {
+    try { firstCell.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' }); }
+    catch (err) { firstCell.scrollIntoView(); }
+  }
+  if (unitId !== undefined && unitId !== null) {
+    const card = controlsContainer.querySelector(`.unit-card[data-unit-id="${unitId}"]`);
+    if (card) card.classList.add('active-src');
+  }
+  liveBadge.classList.add('show');
+}
+
+/* =========================================================
+   ਵੈਲਿਡੇਸ਼ਨ ਲਿਸਟ
+   ========================================================= */
+function getCellListInfo(sheetName, ref) {
+  const c = parseCell(ref);
+  if (!c) return null;
+  const sd = sheets[sheetName];
+  if (!sd || !sd.validations) return null;
+  const v = sd.validations[`${c.r},${c.c}`];
+  if (!v) return null;
+  let values = [];
+  let rangeRef = null;
+  if (v.rangeRef) {
+    rangeRef = v.rangeRef;
+    values = resolveRangeValues(v.rangeRef, sheetName);
+  } else if (v.values && v.values.length) {
+    values = v.values.slice();
+  }
+  return { values, rangeRef, cell: { r: c.r, c: c.c } };
+}
+
+function computeComboSources(combo) {
+  const sources = [];
+  if (combo.cellList) {
+    sources.push({
+      sheet: combo.cellList.sheet,
+      startRef: combo.cellList.ref,
+      endRef: combo.cellList.ref
+    });
+    const info = getCellListInfo(combo.cellList.sheet, combo.cellList.ref);
+    if (info && info.rangeRef) {
+      const parsed = parseRangeRefWithSheet(info.rangeRef, combo.cellList.sheet);
+      if (parsed) {
+        sources.push({
+          sheet: parsed.sheet,
+          startRef: cellRef(parsed.start.r, parsed.start.c),
+          endRef: cellRef(parsed.end.r, parsed.end.c)
+        });
+      }
+    }
+  } else if (combo.rangeSource) {
+    sources.push({
+      sheet: combo.rangeSource.sheet,
+      startRef: combo.rangeSource.startRef,
+      endRef: combo.rangeSource.endRef
+    });
+  }
+  return sources;
+}
+
+/* =========================================================
+   ਐਕਸਲ ਪੜ੍ਹਨਾ
+   ========================================================= */
+function sheetToAoa(ws) {
+  if (!ws || !ws['!ref']) return [['']];
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  const aoa = [];
+  for (let r = range.s.r; r <= range.e.r; r++) {
+    const row = [];
+    for (let c = range.s.c; c <= range.e.c; c++) {
+      const cell = ws[XLSX.utils.encode_cell({ r, c })];
+      if (!cell) { row.push(''); continue; }
+      if (cell.f) row.push('=' + cell.f);
+      else if (cell.t === 'd' && cell.v instanceof Date) {
+        const epoch = new Date(Date.UTC(1899, 11, 30));
+        const serial = (cell.v.getTime() - epoch.getTime()) / 86400000;
+        row.push(Math.round(serial * 1e6) / 1e6);
+      } else if (cell.v !== undefined) row.push(cell.v);
+      else row.push('');
+    }
+    aoa.push(row);
+  }
+  return aoa;
+}
+
+async function parseWorkbookMetadata(buffer, wb) {
+  const result = {};
+  wb.SheetNames.forEach(n => {
+    result[n] = { validations: {}, hiddenRows: new Set(), hiddenCols: new Set(), hidden: false };
+  });
+
+  let zip;
+  try { zip = await JSZip.loadAsync(buffer); }
+  catch (e) { return result; }
+
+  const wbFile = zip.file('xl/workbook.xml');
+  if (!wbFile) return result;
+  const wbDoc = new DOMParser().parseFromString(await wbFile.async('string'), 'application/xml');
+
+  const nameToRid = {};
+  wbDoc.querySelectorAll('sheet').forEach(el => {
+    const name = el.getAttribute('name');
+    nameToRid[name] = el.getAttribute('r:id');
+    const st = el.getAttribute('state');
+    if (st === 'hidden' || st === 'veryHidden') result[name].hidden = true;
+  });
+
+  const relsFile = zip.file('xl/_rels/workbook.xml.rels');
+  if (!relsFile) return result;
+  const relsDoc = new DOMParser().parseFromString(await relsFile.async('string'), 'application/xml');
+  const ridToTarget = {};
+  relsDoc.querySelectorAll('Relationship').forEach(el => {
+    ridToTarget[el.getAttribute('Id')] = el.getAttribute('Target');
+  });
+
+  for (const name of wb.SheetNames) {
+    const rid = nameToRid[name];
+    if (!rid) continue;
+    let target = ridToTarget[rid];
+    if (!target) continue;
+    if (target.startsWith('/')) target = target.slice(1);
+    else if (!target.startsWith('xl/')) target = 'xl/' + target;
+
+    const sf = zip.file(target);
+    if (!sf) continue;
+    const doc = new DOMParser().parseFromString(await sf.async('string'), 'application/xml');
+
+    doc.querySelectorAll('sheetData > row').forEach(rowEl => {
+      const h = rowEl.getAttribute('hidden');
+      if (h === '1' || h === 'true') {
+        const r = parseInt(rowEl.getAttribute('r'), 10);
+        if (!isNaN(r)) result[name].hiddenRows.add(r - 1);
+      }
+    });
+    doc.querySelectorAll('cols > col').forEach(colEl => {
+      const h = colEl.getAttribute('hidden');
+      if (h === '1' || h === 'true') {
+        const mn = parseInt(colEl.getAttribute('min'), 10);
+        const mx = parseInt(colEl.getAttribute('max'), 10);
+        if (!isNaN(mn) && !isNaN(mx))
+          for (let c = mn; c <= mx; c++) result[name].hiddenCols.add(c - 1);
+      }
+    });
+    doc.querySelectorAll('dataValidation').forEach(dv => {
+      if (dv.getAttribute('type') !== 'list') return;
+      const sqref = dv.getAttribute('sqref');
+      const f1El = dv.querySelector('formula1');
+      if (!sqref || !f1El) return;
+      const formula1 = (f1El.textContent || '').trim();
+      if (!formula1) return;
+
+      let inlineValues = null, rangeRef = null;
+      if (formula1.startsWith('"') && formula1.endsWith('"')) {
+        const inner = formula1.slice(1, -1).replace(/""/g, '"');
+        inlineValues = inner.split(',').map(s => s.trim());
+      } else rangeRef = formula1;
+
+      parseSqref(sqref).forEach(({ r, c }) => {
+        result[name].validations[`${r},${c}`] = { type: 'list', values: inlineValues || [], rangeRef };
+      });
+    });
+  }
+  return result;
+}
+
+function buildFormulaEngine(aoaPerSheet) {
+  try {
+    if (hf) { hf.destroy(); hf = null; }
+    hf = HyperFormula.buildFromSheets(aoaPerSheet, {
+      licenseKey: 'gpl-v3', evaluateNullToZero: false
+    });
+    engineBadge.style.display = 'inline-block';
+    return true;
+  } catch (err) {
+    console.error('HF build failed:', err);
+    engineBadge.style.display = 'none';
+    return false;
+  }
+}
+
+/* =========================================================
+   ਲਿਸਟ ਵੈਲਿਊਜ਼
+   ========================================================= */
+function resolveRangeValues(rangeRef, defaultSheet) {
+  let sheetName = defaultSheet, ref = rangeRef;
+  if (ref.includes('!')) {
+    const p = ref.split('!');
+    sheetName = p[0].replace(/^'|'$/g, '');
+    ref = p[1];
+  }
+  const rng = parseRange(ref);
+  if (!rng || !hf) return [];
+  const hfId = hf.getSheetId(sheetName);
+  if (hfId === undefined || hfId === null) return [];
+
+  let values;
+  try { values = hf.getSheetValues(hfId); }
+  catch (e) { return []; }
+
+  const out = [];
+  for (let r = rng.start.r; r <= rng.end.r; r++)
+    for (let c = rng.start.c; c <= rng.end.c; c++) {
+      const s = displayValue(getHfValue(values, r, c));
+      if (s !== '' && !out.includes(s)) out.push(s);
+    }
+  return out;
+}
+
+function computeValidationsForSheet(sheetName) {
+  const sd = sheets[sheetName];
+  if (!sd) return {};
+  const raw = sd.validations || {};
+  const out = {};
+  for (const k in raw) {
+    const v = raw[k];
+    let values = [];
+    if (v.rangeRef) values = resolveRangeValues(v.rangeRef, sheetName);
+    else if (v.values) values = v.values.slice();
+    if (values.length) out[k] = { type: 'list', values, rangeRef: v.rangeRef };
+  }
+  return out;
+}
+
+function refreshValidationOptions() {
+  if (!active || !sheets[active]) return;
+  const newCache = computeValidationsForSheet(active);
+  validationCache[active] = newCache;
+  table.querySelectorAll('td.has-validation select').forEach(sel => {
+    const r = +sel.dataset.r, c = +sel.dataset.c;
+    const nv = newCache[`${r},${c}`];
+    if (!nv) return;
+    const cur = sel.value;
+    const opts = nv.values.slice();
+    if (cur && !opts.includes(cur)) opts.unshift(cur);
+    const old = Array.from(sel.options).map(o => o.value);
+    if (JSON.stringify(old) === JSON.stringify(['', ...opts])) return;
+    sel.innerHTML = '<option value=""></option>';
+    opts.forEach(v => {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = v;
+      if (v === cur) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.classList.add('flash');
+    setTimeout(() => sel.classList.remove('flash'), 500);
+  });
+}
+
+/* =========================================================
+   ਵਿਜ਼ਿਬਲ ਕਤਾਰਾਂ/ਕਾਲਮ
+   ========================================================= */
+function computeVisibleIndices(sheetName) {
+  const sd = sheets[sheetName];
+  if (!sd) return { rows: [], cols: [] };
+  const aoa = sd.aoa;
+  const hR = sd.hiddenRows || new Set();
+  const hC = sd.hiddenCols || new Set();
+
+  let maxR = aoa.length, maxC = 0;
+  aoa.forEach(row => { if (row.length > maxC) maxC = row.length; });
+  if (hf) {
+    const id = hf.getSheetId(sheetName);
+    if (id !== undefined && id !== null) {
+      try {
+        const vals = hf.getSheetValues(id);
+        maxR = Math.max(maxR, vals.length);
+        vals.forEach(row => { if (row.length > maxC) maxC = row.length; });
+      } catch (e) {}
+    }
+  }
+  const totalRows = Math.max(maxR, MIN_ROWS);
+  const totalCols = Math.max(maxC, MIN_COLS);
+  const rows = [];
+  for (let r = 0; r < totalRows; r++) if (!hR.has(r)) rows.push(r);
+  const cols = [];
+  for (let c = 0; c < totalCols; c++) if (!hC.has(c)) cols.push(c);
+  return { rows, cols };
+}
+
+/* =========================================================
+   ਗਰਿੱਡ ਰੈਂਡਰ
+   ========================================================= */
+function renderGrid() {
+  if (!active || !sheets[active]) {
+    table.innerHTML = '';
+    gridWrap.classList.add('is-empty');
+    return;
+  }
+  gridWrap.classList.remove('is-empty');
+
+  const sd = sheets[active];
+  const aoa = sd.aoa;
+
+  let hfId = null, hfValues = null;
+  if (hf) {
+    hfId = hf.getSheetId(active);
+    if (hfId !== undefined && hfId !== null) {
+      try { hfValues = hf.getSheetValues(hfId); }
+      catch (e) { hfValues = null; }
+    }
+  }
+
+  const { rows: visRowsAll, cols: visCols } = computeVisibleIndices(active);
+  const visRows = visRowsAll.slice(0, MAX_RENDER_ROWS);
+
+  validationCache[active] = computeValidationsForSheet(active);
+  const validations = validationCache[active];
+
+  let html = '<thead><tr><th class="corner"></th>';
+  visCols.forEach(c => { html += `<th class="colhead" data-c="${c}">${colLetter(c)}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  visRows.forEach(r => {
+    html += `<tr><th class="rowhead" data-r="${r}">${r + 1}</th>`;
+    visCols.forEach(c => {
+      let value;
+      if (hfValues) value = getHfValue(hfValues, r, c);
+      else value = (aoa[r] && aoa[r][c] !== undefined) ? aoa[r][c] : '';
+      const displayText = displayValue(value);
+
+      let formula = null;
+      if (hf && hfId !== undefined && hfId !== null) {
+        try { formula = hf.getCellFormula({ sheet: hfId, row: r, col: c }); }
+        catch (e) { formula = null; }
+      }
+      const rawForEdit = formula
+        ? (String(formula).startsWith('=') ? formula : '=' + formula)
+        : displayText;
+
+      const validation = validations[`${r},${c}`];
+      const hasFx = formula ? ' has-formula' : '';
+
+      if (validation) {
+        const list = validation.values.slice();
+        if (displayText && !list.includes(displayText)) list.unshift(displayText);
+        html += `<td class="cell has-validation${hasFx}" data-r="${r}" data-c="${c}">`;
+        html += `<select data-r="${r}" data-c="${c}">`;
+        html += `<option value=""></option>`;
+        list.forEach(v => {
+          const s = (v === displayText) ? ' selected' : '';
+          html += `<option value="${escapeHtml(v)}"${s}>${escapeHtml(v)}</option>`;
+        });
+        html += `</select></td>`;
+      } else {
+        html += `<td class="cell${hasFx}" contenteditable="true" `
+              + `data-r="${r}" data-c="${c}" `
+              + `data-raw="${escapeHtml(rawForEdit)}">${escapeHtml(displayText)}</td>`;
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+
+  table.innerHTML = html;
+  applyHighlight();
+}
+
+function applyHighlight() {
+  table.querySelectorAll('.hl').forEach(el => el.classList.remove('hl'));
+  const ch = table.querySelector(`.colhead[data-c="${selected.c}"]`);
+  const rh = table.querySelector(`.rowhead[data-r="${selected.r}"]`);
+  if (ch) ch.classList.add('hl');
+  if (rh) rh.classList.add('hl');
+}
+
+function renderTabs() {
+  sheetTabs.innerHTML = '';
+  if (!visibleSheetOrder.length) return;
+  visibleSheetOrder.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (name === active ? ' active' : '');
+    btn.textContent = name;
+    btn.addEventListener('click', () => {
+      if (active === name) return;
+      active = name;
+      selected = { r: 0, c: 0 };
+      validationCache[active] = computeValidationsForSheet(active);
+      renderGrid();
+      renderTabs();
+      renderUnits();
+    });
+    sheetTabs.appendChild(btn);
+  });
+  const a = sheetTabs.querySelector('.tab.active');
+  if (a) a.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+}
+
+/* =========================================================
+   ਸੈੱਲ ਐਡਿਟ
+   ========================================================= */
+table.addEventListener('focusin', e => {
+  if (pickingState.active) { e.preventDefault(); return; }
+  const td = e.target.closest('td.cell[contenteditable="true"]');
+  if (!td) return;
+  selected = { r: +td.dataset.r, c: +td.dataset.c };
+  applyHighlight();
+  const raw = td.dataset.raw;
+  if (raw !== undefined && td.textContent !== raw) td.textContent = raw;
+  try {
+    const range = document.createRange();
+    range.selectNodeContents(td);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  } catch (err) {}
+});
+
+table.addEventListener('focusout', e => {
+  if (pickingState.active) return;
+  const td = e.target.closest('td.cell[contenteditable="true"]');
+  if (!td) return;
+  commitCell(td);
+});
+
+table.addEventListener('keydown', e => {
+  if (pickingState.active) return;
+  const td = e.target.closest('td.cell[contenteditable="true"]');
+  if (!td) return;
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); td.blur(); }
+  else if (e.key === 'Escape') { td.textContent = td.dataset.raw || ''; td.blur(); }
+});
+
+function commitCell(td) {
+  const r = +td.dataset.r, c = +td.dataset.c;
+  const newVal = td.textContent;
+  const oldRaw = td.dataset.raw || '';
+  if (newVal === oldRaw) return;
+  if (!hf) return;
+  const hfId = hf.getSheetId(active);
+  if (hfId === undefined || hfId === null) return;
+  try { hf.setCellContents({ sheet: hfId, row: r, col: c }, [[newVal]]); }
+  catch (err) { console.error(err); td.textContent = oldRaw; return; }
+  refreshAllCells();
+  refreshValidationOptions();
+  renderUnits();
+}
+
+table.addEventListener('change', e => {
+  const sel = e.target.closest('td.has-validation select');
+  if (!sel) return;
+  const r = +sel.dataset.r, c = +sel.dataset.c;
+  const v = sel.value;
+  if (!hf) return;
+  const hfId = hf.getSheetId(active);
+  if (hfId === undefined || hfId === null) return;
+  try { hf.setCellContents({ sheet: hfId, row: r, col: c }, [[v]]); }
+  catch (err) { console.error(err); return; }
+  refreshAllCells();
+  refreshValidationOptions();
+  renderUnits();
+});
+
+table.addEventListener('click', e => {
+  const sel = e.target.closest('td.has-validation select');
+  if (sel) {
+    selected = { r: +sel.dataset.r, c: +sel.dataset.c };
+    applyHighlight();
+  }
+});
+
+function refreshAllCells() {
+  if (!hf) return;
+  const hfId = hf.getSheetId(active);
+  if (hfId === undefined || hfId === null) return;
+  let values;
+  try { values = hf.getSheetValues(hfId); }
+  catch (e) { return; }
+
+  table.querySelectorAll('td.cell[contenteditable="true"]').forEach(td => {
+    const r = +td.dataset.r, c = +td.dataset.c;
+    const disp = displayValue(getHfValue(values, r, c));
+    let f = null;
+    try { f = hf.getCellFormula({ sheet: hfId, row: r, col: c }); }
+    catch (e) { f = null; }
+    const raw = f ? (String(f).startsWith('=') ? f : '=' + f) : disp;
+    td.dataset.raw = raw;
+    td.classList.toggle('has-formula', !!f);
+    if (document.activeElement !== td && td.textContent !== disp) td.textContent = disp;
+  });
+
+  table.querySelectorAll('td.has-validation select').forEach(sel => {
+    const r = +sel.dataset.r, c = +sel.dataset.c;
+    const disp = displayValue(getHfValue(values, r, c));
+    let found = false;
+    for (const o of sel.options) if (o.value === disp) { found = true; break; }
+    if (!found && disp) {
+      const o = document.createElement('option');
+      o.value = disp; o.textContent = disp;
+      sel.appendChild(o);
+    }
+    if (sel.value !== disp) sel.value = disp;
+  });
+}
+
+/* =========================================================
+   ਪਿਕਿੰਗ
+   ========================================================= */
+function startPicking(mode, target) {
+  ensureExcelVisible();
+  pickingState = { active: true, mode, target, start: null, end: null };
+  gridWrap.classList.add('picking');
+  pickBanner.classList.add('show');
+
+  if (mode === 'cellList') pickMsg.textContent = 'ਸ਼ੀਟ \'ਤੇ ਇੱਕ ਸੈੱਲ ਕਲਿੱਕ ਕਰੋ…';
+  else pickMsg.textContent = 'ਸ਼ੀਟ \'ਤੇ ਸ਼ੁਰੂਆਤੀ ਸੈੱਲ ਕਲਿੱਕ ਕਰੋ…';
+
+  table.querySelectorAll('td.cell[contenteditable="true"]').forEach(td => {
+    td.dataset.prevCE = '1';
+    td.contentEditable = 'false';
+  });
+  table.querySelectorAll('td.cell.has-validation select').forEach(s => s.disabled = true);
+  modalOverlay.classList.remove('show');
+}
+
+function stopPicking() {
+  pickingState = { active: false, mode: null, target: null, start: null, end: null };
+  gridWrap.classList.remove('picking');
+  pickBanner.classList.remove('show');
+  table.querySelectorAll('td.cell.pick-hl').forEach(el => el.classList.remove('pick-hl'));
+  table.querySelectorAll('td.cell').forEach(td => {
+    if (td.dataset.prevCE === '1') {
+      td.contentEditable = 'true';
+      delete td.dataset.prevCE;
+    }
+  });
+  table.querySelectorAll('td.cell.has-validation select').forEach(s => s.disabled = false);
+}
+
+function highlightPick() {
+  table.querySelectorAll('td.cell.pick-hl').forEach(el => el.classList.remove('pick-hl'));
+  if (!pickingState.start) return;
+  const a = pickingState.start;
+  const b = pickingState.end || pickingState.start;
+  const r1 = Math.min(a.r, b.r), r2 = Math.max(a.r, b.r);
+  const c1 = Math.min(a.c, b.c), c2 = Math.max(a.c, b.c);
+  for (let r = r1; r <= r2; r++)
+    for (let c = c1; c <= c2; c++) {
+      const td = table.querySelector(`td.cell[data-r="${r}"][data-c="${c}"]`);
+      if (td) td.classList.add('pick-hl');
+    }
+}
+
+table.addEventListener('mousedown', e => {
+  if (!pickingState.active) return;
+  const td = e.target.closest('td.cell');
+  if (!td) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  const r = +td.dataset.r, c = +td.dataset.c;
+
+  if (pickingState.mode === 'cellList') {
+    pickingState.start = { r, c };
+    pickingState.end = { r, c };
+    highlightPick();
+    finishPicking();
+    return;
+  }
+  if (!pickingState.start) {
+    pickingState.start = { r, c };
+    pickingState.end = { r, c };
+    highlightPick();
+    pickMsg.textContent = 'ਹੁਣ ਅੰਤਿਮ ਸੈੱਲ ਕਲਿੱਕ ਕਰੋ…';
+  } else {
+    pickingState.end = { r, c };
+    highlightPick();
+    finishPicking();
+  }
+}, true);
+
+pickCancel.addEventListener('click', () => {
+  stopPicking();
+  modalOverlay.classList.add('show');
+});
+
+function finishPicking() {
+  const mode = pickingState.mode;
+  const target = pickingState.target;
+  const start = pickingState.start;
+  const end = pickingState.end || pickingState.start;
+  const sheet = active;
+  stopPicking();
+
+  if (target === 'combo') {
+    if (mode === 'cellList') {
+      modalState.comboCellListPick = { sheet, ref: cellRef(start.r, start.c) };
+      comboRange.value = cellRef(start.r, start.c);
+      document.querySelector('input[name="comboMode"][value="manual"]').checked = true;
+      comboPickInfo.classList.remove('show');
+    } else {
+      modalState.comboRangePick = {
+        sheet,
+        startRef: cellRef(start.r, start.c),
+        endRef: cellRef(end.r, end.c)
+      };
+      comboRange.value = rangeToString(start, end);
+      document.querySelector('input[name="comboMode"][value="manual"]').checked = true;
+      comboPickInfo.classList.remove('show');
+    }
+  } else {
+    modalState.tablePick = {
+      sheet,
+      startRef: cellRef(start.r, start.c),
+      endRef: cellRef(end.r, end.c)
+    };
+    tableRange.value = rangeToString(start, end);
+    document.querySelector('input[name="tableMode"][value="manual"]').checked = true;
+    tablePickInfo.classList.remove('show');
+  }
+  modalOverlay.classList.add('show');
+}
+
+/* =========================================================
+   Add Unit Modal
+   ========================================================= */
+function openModal() {
+  modalState = { comboCellListPick: null, comboRangePick: null, tablePick: null };
+  comboRange.value = '';
+  tableRange.value = '';
+  document.querySelector('input[name="comboSrcType"][value="cellList"]').checked = true;
+  document.querySelector('input[name="comboMode"][value="manual"]').checked = true;
+  document.querySelector('input[name="tableMode"][value="manual"]').checked = true;
+  comboSrcLabel.textContent = 'ਉਹ ਸੈੱਲ ਜਿਸ ਵਿੱਚ ਲਿਸਟ ਹੈ (ਜਿਵੇਂ A2):';
+  comboRange.placeholder = 'ਜਿਵੇਂ: A2';
+  tableRange.placeholder = 'ਜਿਵੇਂ: A1:C10';
+  comboPickInfo.classList.remove('show');
+  tablePickInfo.classList.remove('show');
+  modalOverlay.classList.add('show');
+}
+
+modalCancel.addEventListener('click', () => {
+  if (pickingState.active) stopPicking();
+  modalOverlay.classList.remove('show');
+});
+
+document.querySelectorAll('input[name="comboSrcType"]').forEach(r => {
+  r.addEventListener('change', e => {
+    if (e.target.value === 'cellList') {
+      comboSrcLabel.textContent = 'ਉਹ ਸੈੱਲ ਜਿਸ ਵਿੱਚ ਲਿਸਟ ਹੈ (ਜਿਵੇਂ A2):';
+      comboRange.placeholder = 'ਜਿਵੇਂ: A2';
+    } else {
+      comboSrcLabel.textContent = 'ਕਿਹੜੇ ਤੋਂ ਕਿਹੜੇ ਸੈੱਲ (ਰੇਂਜ):';
+      comboRange.placeholder = 'ਜਿਵੇਂ: A1:A10';
+    }
+  });
+});
+
+document.querySelectorAll('input[name="comboMode"]').forEach(r => {
+  r.addEventListener('change', e => {
+    if (e.target.value === 'pick') {
+      if (!active) {
+        alert('ਪਹਿਲਾਂ ਐਕਸਲ ਫਾਈਲ ਅਪਲੋਡ ਕਰੋ।');
+        document.querySelector('input[name="comboMode"][value="manual"]').checked = true;
+        return;
+      }
+      const comboType = document.querySelector('input[name="comboSrcType"]:checked').value;
+      const mode = (comboType === 'cellList') ? 'cellList' : 'range';
+      startPicking(mode, 'combo');
+    } else {
+      comboPickInfo.classList.remove('show');
+    }
+  });
+});
+
+document.querySelectorAll('input[name="tableMode"]').forEach(r => {
+  r.addEventListener('change', e => {
+    if (e.target.value === 'pick') {
+      if (!active) {
+        alert('ਪਹਿਲਾਂ ਐਕਸਲ ਫਾਈਲ ਅਪਲੋਡ ਕਰੋ।');
+        document.querySelector('input[name="tableMode"][value="manual"]').checked = true;
+        return;
+      }
+      startPicking('range', 'table');
+    } else {
+      tablePickInfo.classList.remove('show');
+    }
+  });
+});
+
+modalOk.addEventListener('click', () => {
+  const comboType = document.querySelector('input[name="comboSrcType"]:checked').value;
+  const comboManualVal = comboRange.value.trim();
+  const combo = { value: '' };
+
+  if (comboType === 'cellList') {
+    let cellRefObj = null;
+    if (modalState.comboCellListPick) cellRefObj = modalState.comboCellListPick;
+    else {
+      const c = parseCell(comboManualVal);
+      if (!c) { alert('ਕੰਬੋ ਸੈੱਲ ਗਲਤ। ਜਿਵੇਂ: A2'); return; }
+      cellRefObj = { sheet: active, ref: cellRef(c.r, c.c) };
+    }
+    const info = getCellListInfo(cellRefObj.sheet, cellRefObj.ref);
+    if (!info) {
+      if (!confirm('ਇਸ ਸੈੱਲ ਵਿੱਚ ਕੋਈ ਲਿਸਟ ਨਹੀਂ ਮਿਲੀ। ਫਿਰ ਵੀ ਜੋੜਨਾ ਹੈ?')) return;
+    }
+    combo.cellList = cellRefObj;
+    combo.syncBack = true;
+  } else {
+    let rs = null;
+    if (modalState.comboRangePick) rs = modalState.comboRangePick;
+    else {
+      const rng = parseRange(comboManualVal);
+      if (!rng) { alert('ਕੰਬੋ ਰੇਂਜ ਗਲਤ। ਜਿਵੇਂ: A1:A10'); return; }
+      rs = { sheet: active,
+             startRef: cellRef(rng.start.r, rng.start.c),
+             endRef: cellRef(rng.end.r, rng.end.c) };
+    }
+    combo.rangeSource = rs;
+  }
+
+  let tableRs = null;
+  if (modalState.tablePick) tableRs = modalState.tablePick;
+  else {
+    const rng = parseRange(tableRange.value.trim());
+    if (!rng) { alert('ਟੇਬਲ ਰੇਂਜ ਗਲਤ। ਜਿਵੇਂ: A1:C10'); return; }
+    tableRs = { sheet: active,
+                startRef: cellRef(rng.start.r, rng.start.c),
+                endRef: cellRef(rng.end.r, rng.end.c) };
+  }
+
+  const unit = {
+    id: unitCounter++,
+    name: nextUnitName(),
+    combo: combo,
+    table: { rangeSource: tableRs }
+  };
+  units.push(unit);
+  selectedUnitId = unit.id;
+
+  modalOverlay.classList.remove('show');
+  renderUnits();
+});
+
+/* =========================================================
+   ਦੋ-ਪਾਸੜ ਸਿੰਕ
+   ========================================================= */
+function syncComboToSource(combo, newValue) {
+  if (!combo.cellList) return false;
+  if (!hf) return false;
+  const c = parseCell(combo.cellList.ref);
+  if (!c) return false;
+  const hfId = hf.getSheetId(combo.cellList.sheet);
+  if (hfId === undefined || hfId === null) return false;
+  const current = getCellValue(combo.cellList.sheet, combo.cellList.ref);
+  if (current === newValue) return false;
+  try {
+    hf.setCellContents({ sheet: hfId, row: c.r, col: c.c }, [[newValue]]);
+  } catch (err) { console.error('sync error:', err); return false; }
+  return true;
+}
+
+function flashSourceCell(sheetName, ref) {
+  if (active !== sheetName) return;
+  const c = parseCell(ref);
+  if (!c) return;
+  const td = table.querySelector(`td.cell[data-r="${c.r}"][data-c="${c.c}"]`);
+  if (!td) return;
+  td.classList.add('sync-flash');
+  setTimeout(() => td.classList.remove('sync-flash'), 1000);
+}
+
+/* =========================================================
+   ਲਾਕ / ਅਨਲਾਕ
+   ========================================================= */
+function applyLockState() {
+  controlsContainer.classList.toggle('locked', globalLocked);
+  if (globalLocked) {
+    btnLock.textContent = '🔒 Locked';
+    btnLock.classList.add('locked');
+    btnAddUnit.style.display = 'none';
+    btnHideExcel.style.display = 'none';
+  } else {
+    btnLock.textContent = '🔓 Unlock';
+    btnLock.classList.remove('locked');
+    btnAddUnit.style.display = '';
+    btnHideExcel.style.display = '';
+  }
+  controlsContainer.querySelectorAll('.unit-name-input').forEach(inp => {
+    inp.readOnly = globalLocked;
+    if (globalLocked) inp.title = 'ਟੇਬਲ ਲਾਕ ਹੈ — ਨਾਮ ਨਹੀਂ ਬਦਲ ਸਕਦੇ';
+    else inp.title = '';
+  });
+  persistLockState();
+}
+
+btnLock.addEventListener('click', () => {
+  if (globalLocked) {
+    openPasswordModal('unlock');
+  } else {
+    globalLocked = true;
+    applyLockState();
+  }
+});
+
+/* =========================================================
+   ਪਾਸਵਰਡ ਮੋਡਲ
+   ========================================================= */
+function openPasswordModal(purpose) {
+  pwPurpose = purpose || 'unlock';
+  pwInput.value = '';
+  pwError.style.display = 'none';
+  if (pwPurpose === 'remove') {
+    pwTitle.textContent = '🗑️ ਡਾਟਾ ਰੀਮੂਵ ਕਰਨ ਲਈ ਪਾਸਵਰਡ';
+    pwOk.textContent = 'ਰੀਮੂਵ ਕਰੋ';
+    pwOk.classList.add('danger');
+  } else {
+    pwTitle.textContent = '🔒 ਅਨਲਾਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ';
+    pwOk.textContent = 'ਅਨਲਾਕ ਕਰੋ';
+    pwOk.classList.remove('danger');
+  }
+  pwModalOverlay.classList.add('show');
+  setTimeout(() => pwInput.focus(), 60);
+}
+
+function closePasswordModal() {
+  pwModalOverlay.classList.remove('show');
+  pwInput.value = '';
+  pwError.style.display = 'none';
+}
+
+function tryPasswordAction() {
+  if (pwInput.value !== UNLOCK_PASSWORD) {
+    pwError.style.display = 'block';
+    pwInput.value = '';
+    pwInput.focus();
+    return;
+  }
+  const purpose = pwPurpose;
+  closePasswordModal();
+  if (purpose === 'unlock') {
+    globalLocked = false;
+    applyLockState();
+    showToast('ਅਨਲਾਕ ਹੋ ਗਿਆ ✓');
+  } else if (purpose === 'remove') {
+    const ok = removeDataFromBrowser();
+    if (ok) {
+      updateSaveRemoveButton();
+      showToast('ਡਾਟਾ ਬ੍ਰਾਊਜ਼ਰ ਤੋਂ ਰੀਮੂਵ ਹੋ ਗਿਆ ✓');
+    } else {
+      showToast('ਡਾਟਾ ਰੀਮੂਵ ਕਰਨ ਵਿੱਚ ਗਲਤੀ ਆਈ', true);
+    }
+  }
+}
+
+pwCancel.addEventListener('click', closePasswordModal);
+pwOk.addEventListener('click', tryPasswordAction);
+pwInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); tryPasswordAction(); }
+  else if (e.key === 'Escape') { closePasswordModal(); }
+});
+pwModalOverlay.addEventListener('mousedown', e => {
+  if (e.target === pwModalOverlay) closePasswordModal();
+});
+
+/* =========================================================
+   ਯੂਨਿਟ ਸਿਲੈਕਟਰ
+   ========================================================= */
+function updateUnitSelector() {
+  if (!units.length) {
+    unitSelectorBar.style.display = 'none';
+    unitSelector.innerHTML = '';
+    return;
+  }
+  unitSelectorBar.style.display = 'flex';
+  unitSelector.innerHTML = '';
+  units.forEach(u => {
+    const o = document.createElement('option');
+    o.value = String(u.id);
+    o.textContent = u.name;
+    if (u.id === selectedUnitId) o.selected = true;
+    unitSelector.appendChild(o);
+  });
+  if (!units.some(u => u.id === selectedUnitId)) {
+    selectedUnitId = units[0].id;
+    unitSelector.value = String(selectedUnitId);
+  }
+}
+unitSelector.addEventListener('change', () => {
+  selectedUnitId = +unitSelector.value;
+  renderUnits();
+});
+
+/* =========================================================
+   ਯੂਨਿਟ ਕਾਰਡ ਰੈਂਡਰ
+   ========================================================= */
+function resolveRangeTo2D(sheetName, startRef, endRef) {
+  if (!hf || !sheetName) return [];
+  const sd = sheets[sheetName];
+  if (!sd) return [];
+  const s = parseCell(startRef);
+  const e = parseCell(endRef || startRef);
+  if (!s || !e) return [];
+  const r1 = Math.min(s.r, e.r), r2 = Math.max(s.r, e.r);
+  const c1 = Math.min(s.c, e.c), c2 = Math.max(s.c, e.c);
+
+  const hfId = hf.getSheetId(sheetName);
+  let values = null;
+  if (hfId !== undefined && hfId !== null) {
+    try { values = hf.getSheetValues(hfId); }
+    catch (err) { values = null; }
+  }
+
+  const out = [];
+  for (let r = r1; r <= r2; r++) {
+    const row = [];
+    for (let c = c1; c <= c2; c++) {
+      let v;
+      if (values) v = displayValue(getHfValue(values, r, c));
+      else v = displayValue((sd.aoa[r] && sd.aoa[r][c] !== undefined) ? sd.aoa[r][c] : '');
+      row.push(v);
+    }
+    out.push(row);
+  }
+  return out;
+}
+
+function renderUnits() {
+  updateUnitSelector();
+  if (!units.length) {
+    controlsContainer.innerHTML =
+      '<div class="empty-msg">ਹਾਲੇ ਕੋਈ ਟੇਬਲ ਨਹੀਂ ਜੋੜਿਆ ਗਿਆ</div>';
+    applyLockState();
+    return;
+  }
+
+  const unit = units.find(u => u.id === selectedUnitId) || units[0];
+  if (!unit) { controlsContainer.innerHTML = ''; return; }
+  selectedUnitId = unit.id;
+
+  controlsContainer.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'unit-card';
+  card.dataset.unitId = unit.id;
+
+  const head = document.createElement('div');
+  head.className = 'unit-head';
+
+  const nameInput = document.createElement('input');
+  nameInput.className = 'unit-name-input';
+  nameInput.type = 'text';
+  nameInput.value = unit.name;
+  nameInput.readOnly = globalLocked;
+  if (globalLocked) nameInput.title = 'ਟੇਬਲ ਲਾਕ ਹੈ — ਨਾਮ ਨਹੀਂ ਬਦਲ ਸਕਦੇ';
+  nameInput.addEventListener('input', () => {
+    unit.name = nameInput.value;
+    const opt = unitSelector.querySelector(`option[value="${unit.id}"]`);
+    if (opt) opt.textContent = unit.name;
+  });
+
+  const del = document.createElement('button');
+  del.className = 'unit-del';
+  del.textContent = '✕ ਹਟਾਓ';
+  del.addEventListener('click', () => {
+    units = units.filter(u => u.id !== unit.id);
+    if (selectedUnitId === unit.id) {
+      selectedUnitId = units.length ? units[0].id : null;
+    }
+    clearSourceHighlight(true);
+    renderUnits();
+  });
+
+  head.appendChild(nameInput);
+  head.appendChild(del);
+  card.appendChild(head);
+
+  /* Combo section */
+  const comboSec = document.createElement('div');
+  comboSec.className = 'unit-section';
+
+  let values = [];
+  const combo = unit.combo;
+
+  if (combo.cellList) {
+    const info = getCellListInfo(combo.cellList.sheet, combo.cellList.ref);
+    if (info) values = info.values;
+    const curVal = getCellValue(combo.cellList.sheet, combo.cellList.ref);
+    combo.value = curVal || '';
+  } else if (combo.rangeSource) {
+    const data2D = resolveRangeTo2D(combo.rangeSource.sheet,
+      combo.rangeSource.startRef, combo.rangeSource.endRef);
+    data2D.forEach(row => row.forEach(v => {
+      if (v !== '' && !values.includes(v)) values.push(v);
+    }));
+  }
+
+  const sel = document.createElement('select');
+  sel.className = 'ctrl-select';
+  if (combo.cellList) sel.classList.add('synced');
+
+  const empty = document.createElement('option');
+  empty.value = '';
+  empty.textContent = '— ਚੁਣੋ —';
+  sel.appendChild(empty);
+
+  values.forEach(v => {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v;
+    if (v === combo.value) o.selected = true;
+    sel.appendChild(o);
+  });
+
+  if (combo.value && !values.includes(combo.value)) {
+    const o = document.createElement('option');
+    o.value = combo.value; o.textContent = combo.value;
+    o.selected = true;
+    sel.appendChild(o);
+  }
+
+  const showSrc = () => { highlightRanges(computeComboSources(combo), unit.id); };
+
+  sel.addEventListener('mousedown', showSrc);
+  sel.addEventListener('focus', showSrc);
+  sel.addEventListener('touchstart', showSrc, { passive: true });
+  sel.addEventListener('mouseenter', showSrc);
+  sel.addEventListener('mouseleave', () => clearSourceHighlight(false));
+  sel.addEventListener('blur', () => clearSourceHighlight(false));
+
+  sel.addEventListener('change', () => {
+    const newVal = sel.value;
+    combo.value = newVal;
+    if (combo.syncBack && combo.cellList) {
+      const changed = syncComboToSource(combo, newVal);
+      if (changed) {
+        refreshAllCells();
+        refreshValidationOptions();
+        flashSourceCell(combo.cellList.sheet, combo.cellList.ref);
+        setTimeout(() => {
+          renderUnits();
+          highlightRanges(computeComboSources(combo), unit.id);
+        }, 20);
+        return;
+      }
+    }
+    showSrc();
+  });
+
+  comboSec.appendChild(sel);
+  card.appendChild(comboSec);
+
+  /* Table section */
+  const tableSec = document.createElement('div');
+  tableSec.className = 'unit-section';
+
+  const data2D = resolveRangeTo2D(unit.table.rangeSource.sheet,
+    unit.table.rangeSource.startRef, unit.table.rangeSource.endRef);
+  const tbl = document.createElement('table');
+  tbl.className = 'ctrl-table';
+
+  if (!data2D.length) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.textContent = '— ਖਾਲੀ —';
+    tr.appendChild(td);
+    tbl.appendChild(tr);
+  } else {
+    data2D.forEach(row => {
+      const tr = document.createElement('tr');
+      row.forEach(v => {
+        const td = document.createElement('td');
+        td.textContent = v;
+        td.title = v;
+        tr.appendChild(td);
+      });
+      tbl.appendChild(tr);
+    });
+  }
+  tableSec.appendChild(tbl);
+
+  const rs = unit.table.rangeSource;
+
+  tbl.addEventListener('mouseenter', () => {
+    highlightRanges([{
+      sheet: rs.sheet,
+      startRef: rs.startRef,
+      endRef: rs.endRef
+    }], unit.id);
+  });
+  tbl.addEventListener('mouseleave', () => clearSourceHighlight(false));
+
+  card.appendChild(tableSec);
+
+  controlsContainer.appendChild(card);
+  applyLockState();
+}
+
+/* =========================================================
+   ਆਟੋ-ਯੂਨਿਟ ਬਣਾਉਣਾ (ਹਰ ਸ਼ੀਟ ਵਾਸਤੇ)
+   Combo ਸਰੋਤ = A1, Table ਰੇਂਜ = A11:F16
+   ========================================================= */
+function autoCreateDefaultUnits() {
+  units = [];
+  unitCounter = 1;
+  selectedUnitId = null;
+
+  visibleSheetOrder.forEach((sheetName) => {
+    const unit = {
+      id: unitCounter++,
+      name: sheetName,
+      combo: {
+        cellList: { sheet: sheetName, ref: AUTO_COMBO_CELL },
+        syncBack: true,
+        value: ''
+      },
+      table: {
+        rangeSource: {
+          sheet: sheetName,
+          startRef: AUTO_TABLE_START,
+          endRef: AUTO_TABLE_END
+        }
+      }
+    };
+    units.push(unit);
+  });
+
+  selectedUnitId = units.length ? units[0].id : null;
+}
+
+/* =========================================================
+   ਫਾਈਲ ਪ੍ਰੋਸੈਸਿੰਗ (ਸਾਂਝੀ)
+   ========================================================= */
+async function processExcelBuffer(arrayBuffer, fileName) {
+  try {
+    loadingBadge.classList.add('show');
+
+    const wb = XLSX.read(arrayBuffer, { type: 'array', cellDates: true, cellFormula: true });
+
+    let meta = {};
+    try { meta = await parseWorkbookMetadata(arrayBuffer, wb); }
+    catch (err) { console.warn('metadata err:', err); }
+
+    const aoaPerSheet = {};
+    wb.SheetNames.forEach(n => { aoaPerSheet[n] = sheetToAoa(wb.Sheets[n]); });
+
+    buildFormulaEngine(aoaPerSheet);
+
+    sheets = {};
+    sheetOrder = wb.SheetNames.slice();
+    visibleSheetOrder = [];
+    sheetOrder.forEach(n => {
+      const m = meta[n] || { validations: {}, hiddenRows: new Set(), hiddenCols: new Set(), hidden: false };
+      sheets[n] = {
+        aoa: aoaPerSheet[n],
+        validations: m.validations || {},
+        hiddenRows: m.hiddenRows || new Set(),
+        hiddenCols: m.hiddenCols || new Set(),
+        hidden: !!m.hidden
+      };
+      if (!m.hidden) visibleSheetOrder.push(n);
+    });
+
+    const anyHidden = sheetOrder.some(n =>
+      sheets[n].hidden || sheets[n].hiddenRows.size > 0 || sheets[n].hiddenCols.size > 0);
+    hiddenBadge.style.display = anyHidden ? 'inline-block' : 'none';
+
+    currentFileName = fileName;
+    fileNameEl.textContent = fileName;
+
+    active = visibleSheetOrder[0] || sheetOrder[0] || null;
+    selected = { r: 0, c: 0 };
+    validationCache = {};
+
+    /* ਹਰ ਦਿਖਣ ਵਾਲੀ ਸ਼ੀਟ ਲਈ ਇੱਕ ਯੂਨਿਟ ਆਟੋ-ਬਣਾਓ */
+    autoCreateDefaultUnits();
+
+    clearSourceHighlight(true);
+    renderGrid();
+    renderTabs();
+    renderUnits();
+  } finally {
+    loadingBadge.classList.remove('show');
+  }
+}
+
+/* =========================================================
+   ਆਟੋ-ਲੋਡ ਬੰਡਲਡ ਐਕਸਲ (GitHub ਤੋਂ)
+   ========================================================= */
+async function autoLoadBundledExcel() {
+  try {
+    loadingBadge.classList.add('show');
+    const url = encodeURI(BUNDLED_EXCEL_FILE);
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const buf = await response.arrayBuffer();
+    if (!buf || buf.byteLength === 0) throw new Error('Empty file');
+    await processExcelBuffer(buf, BUNDLED_EXCEL_FILE);
+    showToast('ਐਕਸਲ ਫਾਈਲ ਆਟੋ-ਲੋਡ ਹੋ ਗਈ ✓');
+  } catch (err) {
+    console.warn('Bundled excel auto-load skipped:', err);
+    loadingBadge.classList.remove('show');
+    if (hasSavedData()) {
+      const ok = loadSavedData();
+      if (ok) showToast('ਪਿਛਲੀ ਸੈਸ਼ਨ ਦਾ ਡਾਟਾ ਬ੍ਰਾਊਜ਼ਰ ਤੋਂ ਰੀਸਟੋਰ ਹੋ ਗਿਆ ✓');
+    }
+  }
+}
+
+/* =========================================================
+   ਫਾਈਲ ਅਪਲੋਡ
+   ========================================================= */
+fileInput.addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  try {
+    const buffer = await file.arrayBuffer();
+    await processExcelBuffer(buffer, file.name);
+  } catch (err) {
+    console.error(err);
+    alert('ਫਾਈਲ ਪੜ੍ਹਨ ਵਿੱਚ ਗਲਤੀ ਆਈ।');
+  }
+  fileInput.value = '';
+});
+
+/* =========================================================
+   ਸ਼ੁਰੂਆਤ
+   ========================================================= */
+restoreLockState();
+applyExcelVisibility();
+updateSaveRemoveButton();
+
+(async function init() {
+  await autoLoadBundledExcel();
+  applyLockState();
+  if (globalLocked) {
+    showToast('🔒 ਟੇਬਲ ਲਾਕ ਹੈ — ਅਨਲਾਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ ਪਾਓ');
+  }
+})();
+</script>
+</body>
+</html>
