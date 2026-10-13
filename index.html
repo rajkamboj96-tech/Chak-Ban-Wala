@@ -18,7 +18,6 @@
   .pane { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
   .pane.left { border-right: 2px solid #1e6b45; background: #fff; }
 
-  /* ===== ਖੱਬਾ ਟੂਲਬਾਰ ===== */
   .toolbar { display: flex; align-items: center; gap: 10px;
     padding: 8px 12px;
     background: linear-gradient(180deg, #217346, #1a5c39);
@@ -50,7 +49,6 @@
     padding: 5px 12px; border-radius: 4px; font-size: 12px;
     cursor: pointer; font-weight: 700; }
 
-  /* ===== ਖੱਬਾ ਗਰਿੱਡ ===== */
   .grid-wrap { position: relative; flex: 1 1 auto; min-height: 0;
     overflow: auto; background: #fff; }
   .empty-state { display: none; position: absolute; inset: 0;
@@ -147,7 +145,6 @@
   .tab.active { background: #fff; color: #217346; font-weight: 800;
     border-color: #cfcfcf; box-shadow: inset 0 3px 0 #217346; }
 
-  /* ===== ਸੱਜਾ ਪਾਸਾ ===== */
   .pane.right {
     background: linear-gradient(135deg, #f0f7f4 0%, #eaf3fb 50%, #fdf4e8 100%);
     overflow: hidden; }
@@ -188,7 +185,11 @@
   #btnFullscreen.fs-active { background: linear-gradient(135deg, #e67e22, #d35400); }
   #btnFullscreen.fs-active:hover { background: linear-gradient(135deg, #d06f1a, #b34700); transform: translateY(-1px); }
 
-  /* ===== ਟੂਲਬਾਰ ਦੇ ਕੰਬੋ ਬੌਕਸ ===== */
+  #btnPhotosFolder { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+  #btnPhotosFolder:hover { background: linear-gradient(135deg, #8e44ad, #7d3c98); transform: translateY(-1px); }
+  #btnPhotosFolder.folder-set { background: linear-gradient(135deg, #27ae60, #1e8449); }
+  #btnPhotosFolder.folder-set:hover { background: linear-gradient(135deg, #1e8449, #145a32); transform: translateY(-1px); }
+
   .right-toolbar .spacer { flex: 1 1 auto; min-width: 0; }
 
   .toolbar-combos {
@@ -235,7 +236,6 @@
   .empty-msg { text-align: center; color: #7a8899;
     margin-top: 40px; font-size: 15px; font-weight: 600; line-height: 1.9; }
 
-  /* ===== ਯੂਨਿਟ ਕਾਰਡ ===== */
   .unit-card {
     background: linear-gradient(180deg, #ffffff 0%, #f9fcff 100%);
     border: 2px solid #c8d9e8;
@@ -295,22 +295,6 @@
   .unit-section { margin-bottom: 14px; }
   .unit-section:last-child { margin-bottom: 0; }
 
-  .ctrl-select { width: 100%; padding: 10px 12px; font-size: 14.5px;
-    border: 2px solid #b3d4ec; border-radius: 8px;
-    background: linear-gradient(180deg, #ffffff 0%, #f4faff 100%);
-    font-family: inherit; font-weight: 700;
-    color: #1a4d7a; cursor: pointer; outline: none;
-    transition: border-color .15s, box-shadow .15s, background .15s;
-    box-shadow: 0 1px 3px rgba(100,140,180,.1); }
-  .ctrl-select:focus, .ctrl-select:active {
-    border-color: #3498db;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(52,152,219,.2); }
-  .ctrl-select.synced {
-    background: linear-gradient(180deg, #f0fdf4 0%, #e8fbf0 100%);
-    border-color: #86d4a4; }
-
-  /* ===== ਟੇਬਲ — ਰੰਗ ਬਰੰਗੇ ਸੈੱਲ (ਵੱਡਾ ਅਤੇ ਬੋਲਡ) ===== */
   .ctrl-table { width: 100%; border-collapse: separate;
     border-spacing: 3px;
     font-size: 16px;
@@ -320,15 +304,116 @@
     padding: 3px;
     box-shadow: 0 2px 8px rgba(100,140,180,.2); }
   .ctrl-table td {
-    padding: 10px 14px; text-align: left;
-    max-width: 260px; overflow: hidden; text-overflow: ellipsis;
+    padding: 8px 12px; text-align: left;
+    max-width: 340px; overflow: hidden; text-overflow: ellipsis;
     font-weight: 700;
     font-size: 16px;
     color: #1a2b3c;
     border-radius: 5px;
     transition: transform .1s, filter .15s;
     white-space: nowrap;
-    letter-spacing: .2px; }
+    letter-spacing: .2px;
+    position: relative; }
+  .ctrl-table td.has-dots {
+    padding: 6px 8px; }
+
+  /* ── ਸੈੱਲ ਦੇ ਅੰਦਰ ਟੈਕਸਟ + ਐਕਸ਼ਨ ਇੱਕੋ ਲਾਈਨ ਵਿੱਚ ── */
+  .cell-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+    width: 100%; }
+
+  .cell-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; }
+
+  .cell-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+    flex: 0 0 auto; }
+
+  .dots-left-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    pointer-events: none;
+    flex: 0 0 auto; }
+
+  .cell-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: transform .15s, box-shadow .15s;
+    border: 1.5px solid rgba(255,255,255,.9);
+    box-shadow: 0 1px 3px rgba(0,0,0,.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    font-family: Arial, sans-serif;
+    line-height: 1;
+    padding: 0;
+    user-select: none; }
+
+  .cell-dot:hover { transform: scale(1.18); }
+
+  .cell-dot.dot-add {
+    background: radial-gradient(circle at 35% 30%, #7ff0b1, #27ae60 65%, #1a8a4a); }
+  .cell-dot.dot-add:hover {
+    box-shadow: 0 0 0 3px rgba(39,174,96,.4), 0 1px 4px rgba(0,0,0,.4); }
+
+  /* View dot — ਵੱਡੀ ਫੋਟੋ ਥੰਬਨੇਲ (58×58) */
+  .cell-dot.dot-view {
+    width: 58px;
+    height: 58px;
+    background-color: #2980b9;
+    background-image: linear-gradient(135deg, #90d4ff, #2980b9);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+  .cell-dot.dot-view:hover {
+    box-shadow: 0 0 0 3px rgba(41,128,185,.45), 0 2px 8px rgba(0,0,0,.35);
+    transform: scale(1.06); }
+
+  .cell-dot.dot-del {
+    background: radial-gradient(circle at 35% 30%, #ffb3b3, #e74c3c 65%, #a82e20);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 900;
+    text-shadow: 0 1px 1px rgba(0,0,0,.5);
+    padding-bottom: 1px; }
+  .cell-dot.dot-del:hover {
+    background: radial-gradient(circle at 35% 30%, #ff9999, #c0392b 65%, #7b1a10);
+    box-shadow: 0 0 0 3px rgba(231,76,60,.4), 0 1px 4px rgba(0,0,0,.4); }
+
+  .cell-dot-spacer {
+    width: 22px;
+    height: 22px;
+    display: block;
+    flex: 0 0 auto;
+    pointer-events: none; }
+
+  .cell-dot-disabled {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(180,180,180,.35);
+    border: 1.5px dashed rgba(120,120,120,.5);
+    display: block;
+    flex: 0 0 auto;
+    pointer-events: none; }
 
   .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+1) { background: #e3f2fd; }
   .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+2) { background: #fce4ec; }
@@ -336,35 +421,30 @@
   .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+4) { background: #fff8e1; }
   .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+5) { background: #f3e5f5; }
   .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+6) { background: #e0f7fa; }
-
   .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+1) { background: #fce4ec; }
   .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+2) { background: #e8f5e9; }
   .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+3) { background: #fff8e1; }
   .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+4) { background: #f3e5f5; }
   .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+5) { background: #e0f7fa; }
   .ctrl-table tr:nth-child(6n+2) td:nth-child(6n+6) { background: #e3f2fd; }
-
   .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+1) { background: #e8f5e9; }
   .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+2) { background: #fff8e1; }
   .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+3) { background: #f3e5f5; }
   .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+4) { background: #e0f7fa; }
   .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+5) { background: #e3f2fd; }
   .ctrl-table tr:nth-child(6n+3) td:nth-child(6n+6) { background: #fce4ec; }
-
   .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+1) { background: #fff8e1; }
   .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+2) { background: #f3e5f5; }
   .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+3) { background: #e0f7fa; }
   .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+4) { background: #e3f2fd; }
   .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+5) { background: #fce4ec; }
   .ctrl-table tr:nth-child(6n+4) td:nth-child(6n+6) { background: #e8f5e9; }
-
   .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+1) { background: #f3e5f5; }
   .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+2) { background: #e0f7fa; }
   .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+3) { background: #e3f2fd; }
   .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+4) { background: #fce4ec; }
   .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+5) { background: #e8f5e9; }
   .ctrl-table tr:nth-child(6n+5) td:nth-child(6n+6) { background: #fff8e1; }
-
   .ctrl-table tr:nth-child(6n+6) td:nth-child(6n+1) { background: #e0f7fa; }
   .ctrl-table tr:nth-child(6n+6) td:nth-child(6n+2) { background: #e3f2fd; }
   .ctrl-table tr:nth-child(6n+6) td:nth-child(6n+3) { background: #fce4ec; }
@@ -378,13 +458,13 @@
     letter-spacing: .6px;
     text-transform: uppercase;
     font-size: 14px;
-    text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+    text-shadow: 0 1px 2px rgba(0,0,0,.3);
+    padding-top: 10px; }
 
   .ctrl-table td:hover {
     filter: brightness(0.94);
     transform: scale(1.02); }
 
-  /* Modal */
   .modal-overlay { display: none; position: fixed; inset: 0;
     background: rgba(20,40,60,.5); z-index: 1000;
     align-items: center; justify-content: center; }
@@ -395,6 +475,7 @@
     box-shadow: 0 10px 40px rgba(0,0,0,.3);
     max-height: 92vh; overflow-y: auto; }
   .modal.pw-modal { max-width: 380px; }
+  .modal.photo-modal { max-width: 540px; }
   .modal h3 { margin: 0 0 16px; font-size: 17px;
     color: #6a3d9a;
     border-bottom: 2px solid #f0e6f6;
@@ -484,7 +565,39 @@
   .modal-actions .btn-ok.danger:hover {
     box-shadow: 0 4px 10px rgba(231,76,60,.4); }
 
-  /* Toast */
+  .photo-container {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 240px;
+    max-height: 62vh;
+    overflow: hidden;
+    border: 2px solid #e0e8ef; }
+  .photo-container img {
+    max-width: 100%;
+    max-height: 58vh;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.2);
+    object-fit: contain;
+    background: #fff; }
+  .photo-container .photo-empty {
+    color: #8899aa;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.8; }
+
+  .photo-info-line {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4a2a6e;
+    text-align: center;
+    background: #f3e9ff;
+    padding: 6px 12px;
+    border-radius: 6px; }
+
   .toast {
     position: fixed; bottom: 24px; left: 50%;
     transform: translateX(-50%) translateY(80px);
@@ -506,7 +619,6 @@
   .right-content::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #8fb4d4, #5e8cb0); }
 
-  /* Fullscreen mode */
   :fullscreen .app { height: 100vh; width: 100vw; }
 </style>
 </head>
@@ -551,6 +663,7 @@
       <button id="btnHideExcel">🙈 Excel ਲੁਕਾਓ</button>
       <button id="btnLock" title="ਲਾਕ/ਅਨਲਾਕ">🔓 Unlock</button>
       <button id="btnFullscreen" title="ਫੁੱਲ ਸਕਰੀਨ">⛶ ਫੁੱਲ ਸਕਰੀਨ</button>
+      <button id="btnPhotosFolder" title="ਫੋਟੋ ਫੋਲਡਰ ਚੁਣੋ">📁 ਫੋਟੋ ਫੋਲਡਰ</button>
 
       <div class="spacer"></div>
 
@@ -638,6 +751,20 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="photoModalOverlay">
+  <div class="modal photo-modal">
+    <h3 id="photoModalTitle">📷 ਫੋਟੋ</h3>
+    <div class="photo-container" id="photoContainer">
+      <img id="photoImg" alt="ਫੋਟੋ" style="display:none">
+      <div class="photo-empty" id="photoEmptyMsg" style="display:none">ਕੋਈ ਫੋਟੋ ਨਹੀਂ</div>
+    </div>
+    <div class="photo-info-line" id="photoInfoLine" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="photoClose">ਬੰਦ ਕਰੋ</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -667,6 +794,7 @@ const btnSaveRemove = document.getElementById('btnSaveRemove');
 const btnHideExcel = document.getElementById('btnHideExcel');
 const btnLock     = document.getElementById('btnLock');
 const btnFullscreen = document.getElementById('btnFullscreen');
+const btnPhotosFolder = document.getElementById('btnPhotosFolder');
 
 const modalOverlay  = document.getElementById('modalOverlay');
 const comboRange    = document.getElementById('comboRange');
@@ -684,20 +812,31 @@ const pwError        = document.getElementById('pwError');
 const pwCancel       = document.getElementById('pwCancel');
 const pwOk           = document.getElementById('pwOk');
 
+const photoModalOverlay = document.getElementById('photoModalOverlay');
+const photoImg          = document.getElementById('photoImg');
+const photoEmptyMsg     = document.getElementById('photoEmptyMsg');
+const photoClose        = document.getElementById('photoClose');
+const photoModalTitle   = document.getElementById('photoModalTitle');
+const photoInfoLine     = document.getElementById('photoInfoLine');
+
 const toastEl = document.getElementById('toast');
 
 const MIN_ROWS = 25, MIN_COLS = 15, MAX_RENDER_ROWS = 1000;
 const UNLOCK_PASSWORD = '2005';
 const STORAGE_KEY = 'excelFormBuilderData_v1';
 const LOCK_STATE_KEY = 'excelFormBuilderLockState_v1';
+const PHOTO_DB_NAME = 'excelFormBuilderPhotosDB_v2';
+const PHOTO_STORE = 'handles';
+const PHOTO_DIR_KEY = 'photosDirHandle';
+const PHOTO_LAST_FILE_KEY = 'lastSourcePhotoFile';
 
-/* ਐਕਸਲ ਫਾਈਲ ਦਾ ਨਾਮ (GitHub ਤੇ ਇਸੇ ਨਾਮ ਨਾਲ ਰੱਖੀ ਜਾਵੇ) */
 const BUNDLED_EXCEL_FILE = 'Main ( Chak Dab - Ban Wala).xlsx';
 
-/* Auto-unit defaults (ਐਕਸਲ ਫਾਈਲ ਲੋਡ ਹੋਣ 'ਤੇ ਹਰ ਸ਼ੀਟ ਵਾਸਤੇ) */
 const AUTO_COMBO_CELL = 'A1';
 const AUTO_TABLE_START = 'A11';
 const AUTO_TABLE_END   = 'F16';
+
+const THUMB_SIZE = 192; /* thumbnail resolution (px) — ਵੱਡੀ ਫੋਟੋ ਲਈ */
 
 let hf = null;
 let sheets = {};
@@ -722,6 +861,13 @@ let sourceHlTimer = null;
 let pwPurpose = 'unlock';
 let toastTimer = null;
 
+/* Photo state */
+let photosDirHandle = null;
+let photoExists = {};   // filename -> true
+let photoCache = {};    // filename -> dataURL (full photo)
+let thumbCache = {};    // filename -> dataURL (thumbnail)
+let lastSourceFileHandle = null;
+
 /* =========================================================
    Toast
    ========================================================= */
@@ -732,11 +878,515 @@ function showToast(msg, isError) {
     : 'linear-gradient(135deg, #27ae60, #16a085)';
   toastEl.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2800);
 }
 
 /* =========================================================
-   ਫੁੱਲ ਸਕਰੀਨ
+   IndexedDB
+   ========================================================= */
+function openPhotoDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(PHOTO_DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(PHOTO_STORE)) {
+        db.createObjectStore(PHOTO_STORE, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function dbPut(id, value) {
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PHOTO_STORE, 'readwrite');
+    tx.objectStore(PHOTO_STORE).put({ id, value });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function dbGet(id) {
+  const db = await openPhotoDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PHOTO_STORE, 'readonly');
+    const req = tx.objectStore(PHOTO_STORE).get(id);
+    req.onsuccess = () => resolve(req.result ? req.result.value : null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/* =========================================================
+   Filename helpers
+   ========================================================= */
+function sanitizeNameForFile(name) {
+  let s = String(name == null ? '' : name).trim();
+  if (!s) return '';
+  s = s.replace(/[\/\\:*?"<>|\x00-\x1f]/g, '_');
+  s = s.replace(/\s+/g, ' ').trim();
+  s = s.replace(/_+/g, '_').replace(/^_|_$/g, '');
+  const reserved = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+  if (reserved.test(s)) s = '_' + s;
+  if (s.length > 150) s = s.slice(0, 150);
+  return s;
+}
+
+/* ਨਵਾਂ: ਟੇਬਲ ਨਾਮ + ਮੁਖੀ (ਚੋਣ) + ਵਿਅਕਤੀ ਦਾ ਨਾਮ ਮਿਲਾ ਕੇ base ਨਾਮ ਬਣਾਓ */
+function photoBaseName(unit, cellText) {
+  const parts = [];
+  if (unit && unit.name) {
+    const n = String(unit.name).trim();
+    if (n) parts.push(n);
+  }
+  if (unit && unit.combo && unit.combo.value) {
+    const cv = String(unit.combo.value).trim();
+    if (cv) parts.push(cv);
+  }
+  if (cellText) {
+    const ct = String(cellText).trim();
+    if (ct) parts.push(ct);
+  }
+  if (!parts.length) return '';
+  return sanitizeNameForFile(parts.join('_'));
+}
+
+function photoFileNameFromUnitCell(unit, cellText) {
+  const base = photoBaseName(unit, cellText);
+  if (!base) return null;
+  return base + '.png';
+}
+
+function thumbFileNameFromPhoto(fileName) {
+  if (!fileName) return null;
+  return fileName.replace(/\.png$/i, '_thumb.png');
+}
+
+function isThumbFile(fileName) {
+  return /_thumb\.(png|jpg|jpeg|gif|webp|bmp)$/i.test(fileName);
+}
+
+function findExistingPhotoFile(name) {
+  if (!name) return null;
+  if (photoExists[name] && !isThumbFile(name)) return name;
+  const lower = name.toLowerCase();
+  for (const k in photoExists) {
+    if (k.toLowerCase() === lower && !isThumbFile(k)) return k;
+  }
+  return null;
+}
+
+function findExistingThumbFile(name) {
+  if (!name) return null;
+  if (photoExists[name] && isThumbFile(name)) return name;
+  const lower = name.toLowerCase();
+  for (const k in photoExists) {
+    if (k.toLowerCase() === lower && isThumbFile(k)) return k;
+  }
+  return null;
+}
+
+/* =========================================================
+   Thumbnail generation
+   ========================================================= */
+function createThumbnailDataUrl(source, maxSize) {
+  const max = maxSize || THUMB_SIZE;
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const ratio = Math.min(max / img.width, max / img.height, 1);
+        const w = Math.max(1, Math.round(img.width * ratio));
+        const h = Math.max(1, Math.round(img.height * ratio));
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/png'));
+      } catch (err) { reject(err); }
+    };
+    img.onerror = reject;
+    if (typeof source === 'string') img.src = source;
+    else {
+      const reader = new FileReader();
+      reader.onload = () => { img.src = reader.result; };
+      reader.onerror = reject;
+      reader.readAsDataURL(source);
+    }
+  });
+}
+
+async function dataUrlToBlob(dataUrl) {
+  const res = await fetch(dataUrl);
+  return await res.blob();
+}
+
+/* =========================================================
+   Photos folder
+   ========================================================= */
+function photosApiSupported() {
+  return typeof window.showDirectoryPicker === 'function';
+}
+
+async function saveDirHandleToDB(handle) {
+  try { await dbPut(PHOTO_DIR_KEY, handle); }
+  catch (e) { console.warn('save handle failed:', e); }
+}
+async function loadDirHandleFromDB() {
+  try { return await dbGet(PHOTO_DIR_KEY); }
+  catch (e) { return null; }
+}
+async function saveLastSourceFileHandle(handle) {
+  try { await dbPut(PHOTO_LAST_FILE_KEY, handle); }
+  catch (e) { console.warn('save last source handle failed:', e); }
+}
+async function loadLastSourceFileHandle() {
+  try { return await dbGet(PHOTO_LAST_FILE_KEY); }
+  catch (e) { return null; }
+}
+
+async function ensurePermission(handle, mode) {
+  if (!handle) return false;
+  const opts = { mode: mode || 'readwrite' };
+  try {
+    if ((await handle.queryPermission(opts)) === 'granted') return true;
+    if ((await handle.requestPermission(opts)) === 'granted') return true;
+  } catch (e) {}
+  return false;
+}
+
+async function choosePhotosFolder() {
+  if (!photosApiSupported()) {
+    alert('ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਫੋਲਡਰ ਚੋਣ ਸਮਰਥਿਤ ਨਹੀਂ।\nਕਿਰਪਾ ਕਰਕੇ Chrome ਜਾਂ Edge ਵਰਤੋ।');
+    return false;
+  }
+  try {
+    const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    if (!await ensurePermission(handle, 'readwrite')) {
+      showToast('ਫੋਲਡਰ ਤੱਕ ਪਹੁੰਚ ਦੀ ਆਗਿਆ ਨਹੀਂ ਮਿਲੀ', true);
+      return false;
+    }
+    photosDirHandle = handle;
+    await saveDirHandleToDB(handle);
+    await scanPhotosFolder();
+    updatePhotosFolderButton();
+    showToast('ਫੋਟੋ ਫੋਲਡਰ ਸੈਟ ਹੋ ਗਿਆ ✓');
+    return true;
+  } catch (err) {
+    if (err && err.name !== 'AbortError') {
+      console.warn('choosePhotosFolder err:', err);
+    }
+    return false;
+  }
+}
+
+async function restorePhotosFolder() {
+  if (!photosApiSupported()) {
+    updatePhotosFolderButton();
+    return;
+  }
+  const handle = await loadDirHandleFromDB();
+  if (!handle) { updatePhotosFolderButton(); return; }
+  photosDirHandle = handle;
+  try {
+    const perm = await handle.queryPermission({ mode: 'readwrite' });
+    if (perm === 'granted') await scanPhotosFolder();
+  } catch (e) {}
+  updatePhotosFolderButton();
+}
+
+async function restoreLastSourceFileHandle() {
+  const h = await loadLastSourceFileHandle();
+  if (h) lastSourceFileHandle = h;
+}
+
+function updatePhotosFolderButton() {
+  if (photosDirHandle) {
+    btnPhotosFolder.textContent = '📁 ਫੋਲਡਰ ਬਦਲੋ';
+    btnPhotosFolder.classList.add('folder-set');
+    btnPhotosFolder.title = 'ਫੋਟੋ ਫੋਲਡਰ ਬਦਲੋ (ਵਰਤਮਾਨ ਵਿੱਚ ਸੈਟ)';
+  } else {
+    btnPhotosFolder.textContent = '📁 ਫੋਟੋ ਫੋਲਡਰ';
+    btnPhotosFolder.classList.remove('folder-set');
+    btnPhotosFolder.title = 'ਫੋਟੋ ਫੋਲਡਰ ਚੁਣੋ';
+  }
+}
+
+async function scanPhotosFolder() {
+  photoExists = {};
+  photoCache = {};
+  thumbCache = {};
+  if (!photosDirHandle) return;
+  if (!await ensurePermission(photosDirHandle, 'read')) return;
+  try {
+    for await (const entry of photosDirHandle.values()) {
+      if (entry.kind === 'file' && /\.(png|jpg|jpeg|gif|webp|bmp)$/i.test(entry.name)) {
+        photoExists[entry.name] = true;
+      }
+    }
+  } catch (e) { console.warn('scanPhotosFolder err:', e); }
+}
+
+btnPhotosFolder.addEventListener('click', async () => {
+  await choosePhotosFolder();
+  renderUnits();
+});
+
+/* =========================================================
+   Photo file helpers
+   ========================================================= */
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function pickPhotoFile() {
+  if (typeof window.showOpenFilePicker === 'function') {
+    try {
+      const opts = {
+        types: [{
+          description: 'Images',
+          accept: {
+            'image/png': ['.png'],
+            'image/jpeg': ['.jpg', '.jpeg'],
+            'image/gif': ['.gif'],
+            'image/webp': ['.webp'],
+            'image/bmp': ['.bmp']
+          }
+        }],
+        multiple: false
+      };
+      if (lastSourceFileHandle) {
+        try { opts.startIn = lastSourceFileHandle; }
+        catch (e) { console.warn('startIn failed:', e); }
+      }
+      const [handle] = await window.showOpenFilePicker(opts);
+      try {
+        lastSourceFileHandle = handle;
+        await saveLastSourceFileHandle(handle);
+      } catch (e) { console.warn('save last handle failed:', e); }
+      return await handle.getFile();
+    } catch (e) {
+      if (e && e.name === 'AbortError') return null;
+      console.warn('showOpenFilePicker err:', e);
+    }
+  }
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = () => {
+      resolve(input.files && input.files[0] ? input.files[0] : null);
+    };
+    input.click();
+  });
+}
+
+/* ── Add photo ── */
+async function addPhotoForCellText(unit, cellText) {
+  const cleanBase = photoBaseName(unit, cellText);
+  if (!cleanBase) {
+    showToast('ਪਹਿਲਾਂ ਸੈੱਲ ਵਿੱਚ ਨਾਮ ਲਿਖੋ ਜਾਂ ਚੁਣੋ', true);
+    return;
+  }
+
+  if (!photosDirHandle) {
+    const ok = await choosePhotosFolder();
+    if (!ok) return;
+  }
+  if (!await ensurePermission(photosDirHandle, 'readwrite')) {
+    showToast('ਫੋਲਡਰ ਤੱਕ ਪਹੁੰਚ ਦੀ ਆਗਿਆ ਨਹੀਂ ਮਿਲੀ', true);
+    return;
+  }
+
+  const file = await pickPhotoFile();
+  if (!file) return;
+
+  const fileName  = cleanBase + '.png';
+  const thumbName = cleanBase + '_thumb.png';
+
+  try {
+    const fileHandle = await photosDirHandle.getFileHandle(fileName, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(file);
+    await writable.close();
+
+    const fullDataUrl = await fileToDataURL(file);
+    let thumbDataUrl = null;
+    try {
+      thumbDataUrl = await createThumbnailDataUrl(fullDataUrl, THUMB_SIZE);
+    } catch (e) { console.warn('thumb gen failed:', e); }
+
+    if (thumbDataUrl) {
+      try {
+        const thumbBlob = await dataUrlToBlob(thumbDataUrl);
+        const thumbHandle = await photosDirHandle.getFileHandle(thumbName, { create: true });
+        const thumbWritable = await thumbHandle.createWritable();
+        await thumbWritable.write(thumbBlob);
+        await thumbWritable.close();
+        photoExists[thumbName] = true;
+        thumbCache[fileName] = thumbDataUrl;
+      } catch (e) { console.warn('thumb save failed:', e); }
+    }
+
+    photoExists[fileName] = true;
+    photoCache[fileName] = fullDataUrl;
+
+    showToast('ਫੋਟੋ ਸੇਵ ਹੋ ਗਈ: ' + fileName + ' ✓');
+    renderUnits();
+  } catch (err) {
+    console.error('addPhotoForCellText err:', err);
+    showToast('ਫੋਟੋ ਸੇਵ ਕਰਨ ਵਿੱਚ ਗਲਤੀ ਆਈ', true);
+  }
+}
+
+/* ── Load full photo ── */
+async function loadPhotoByName(fileName) {
+  if (!fileName) return null;
+  if (photoCache[fileName]) return photoCache[fileName];
+  if (!photosDirHandle) return null;
+  if (!await ensurePermission(photosDirHandle, 'read')) return null;
+  try {
+    const fileHandle = await photosDirHandle.getFileHandle(fileName);
+    const file = await fileHandle.getFile();
+    const dataUrl = await fileToDataURL(file);
+    photoCache[fileName] = dataUrl;
+    return dataUrl;
+  } catch (e) {
+    delete photoExists[fileName];
+    return null;
+  }
+}
+
+/* ── Load thumbnail ── */
+async function loadThumbnailFor(photoFileName) {
+  if (!photoFileName) return null;
+  if (thumbCache[photoFileName]) return thumbCache[photoFileName];
+  if (!photosDirHandle) return null;
+
+  const thumbName = thumbFileNameFromPhoto(photoFileName);
+  const realThumb = findExistingThumbFile(thumbName);
+  if (realThumb && await ensurePermission(photosDirHandle, 'read')) {
+    try {
+      const fh = await photosDirHandle.getFileHandle(realThumb);
+      const f = await fh.getFile();
+      const dataUrl = await fileToDataURL(f);
+      thumbCache[photoFileName] = dataUrl;
+      return dataUrl;
+    } catch (e) { /* fall through */ }
+  }
+
+  const fullData = await loadPhotoByName(photoFileName);
+  if (fullData) {
+    try {
+      const thumb = await createThumbnailDataUrl(fullData, THUMB_SIZE);
+      thumbCache[photoFileName] = thumb;
+      return thumb;
+    } catch (e) { /* ignore */ }
+  }
+  return null;
+}
+
+/* ── View photo ── */
+async function viewPhotoForCellText(unit, cellText) {
+  const cleanBase = photoBaseName(unit, cellText);
+  if (!cleanBase) {
+    showToast('ਸੈੱਲ ਵਿੱਚ ਕੋਈ ਨਾਮ ਨਹੀਂ', true);
+    return;
+  }
+  const fileName = cleanBase + '.png';
+
+  const titleParts = [];
+  if (unit && unit.name) titleParts.push(unit.name);
+  if (unit && unit.combo && unit.combo.value) titleParts.push(unit.combo.value);
+  if (cellText) titleParts.push(cellText);
+  photoModalTitle.textContent = '📷 ' + titleParts.join(' — ');
+
+  photoImg.style.display = 'none';
+  photoEmptyMsg.style.display = 'none';
+  photoInfoLine.style.display = 'none';
+  photoModalOverlay.classList.add('show');
+
+  const realFile = findExistingPhotoFile(fileName) || fileName;
+  const dataUrl = await loadPhotoByName(realFile);
+
+  if (dataUrl) {
+    photoImg.src = dataUrl;
+    photoImg.style.display = '';
+    photoEmptyMsg.style.display = 'none';
+    photoInfoLine.textContent = 'ਫਾਈਲ: ' + realFile;
+    photoInfoLine.style.display = '';
+  } else {
+    photoImg.src = '';
+    photoImg.style.display = 'none';
+    photoEmptyMsg.style.display = '';
+    photoEmptyMsg.textContent = 'ਇਸ ਨਾਮ ਲਈ ਕੋਈ ਫੋਟੋ ਨਹੀਂ ਮਿਲੀ\n(' + fileName + ')';
+    photoInfoLine.textContent = 'ਫਾਈਲ: ' + fileName;
+    photoInfoLine.style.display = '';
+  }
+}
+
+/* ── Delete photo ── */
+async function deletePhotoForCellText(unit, cellText) {
+  const cleanBase = photoBaseName(unit, cellText);
+  if (!cleanBase) {
+    showToast('ਸੈੱਲ ਵਿੱਚ ਕੋਈ ਨਾਮ ਨਹੀਂ', true);
+    return;
+  }
+  const fileName  = cleanBase + '.png';
+  const thumbName = cleanBase + '_thumb.png';
+  const realFile  = findExistingPhotoFile(fileName) || fileName;
+  const realThumb = findExistingThumbFile(thumbName);
+
+  if (!confirm('ਕੀ ਤੁਸੀਂ ਇਹ ਫੋਟੋ ਹਟਾਉਣੀ ਚਾਹੁੰਦੇ ਹੋ?\n\n(' + realFile + ')')) {
+    return;
+  }
+
+  if (!photosDirHandle) {
+    showToast('ਪਹਿਲਾਂ ਫੋਟੋ ਫੋਲਡਰ ਚੁਣੋ', true);
+    return;
+  }
+  if (!await ensurePermission(photosDirHandle, 'readwrite')) {
+    showToast('ਫੋਲਡਰ ਤੱਕ ਪਹੁੰਚ ਦੀ ਆਗਿਆ ਨਹੀਂ ਮਿਲੀ', true);
+    return;
+  }
+
+  try {
+    try { await photosDirHandle.removeEntry(realFile); } catch (e) {}
+    delete photoExists[realFile];
+    delete photoCache[realFile];
+    delete thumbCache[realFile];
+
+    if (realThumb) {
+      try { await photosDirHandle.removeEntry(realThumb); } catch (e) {}
+      delete photoExists[realThumb];
+    }
+
+    showToast('ਫੋਟੋ ਹਟਾ ਦਿੱਤੀ ਗਈ ✓');
+    renderUnits();
+  } catch (err) {
+    console.error('deletePhotoForCellText err:', err);
+    showToast('ਫੋਟੋ ਹਟਾਉਣ ਵਿੱਚ ਗਲਤੀ ਆਈ', true);
+  }
+}
+
+photoClose.addEventListener('click', () => {
+  photoModalOverlay.classList.remove('show');
+  photoImg.src = '';
+});
+photoModalOverlay.addEventListener('mousedown', e => {
+  if (e.target === photoModalOverlay) {
+    photoModalOverlay.classList.remove('show');
+    photoImg.src = '';
+  }
+});
+
+/* =========================================================
+   Fullscreen
    ========================================================= */
 function isFullscreen() {
   return !!(document.fullscreenElement ||
@@ -744,7 +1394,6 @@ function isFullscreen() {
             document.mozFullScreenElement ||
             document.msFullscreenElement);
 }
-
 function updateFullscreenButton() {
   if (isFullscreen()) {
     btnFullscreen.textContent = '⛶ ਬੰਦ ਕਰੋ';
@@ -756,14 +1405,11 @@ function updateFullscreenButton() {
     btnFullscreen.classList.remove('fs-active');
   }
 }
-
 function toggleFullscreen() {
   const el = document.documentElement;
   if (!isFullscreen()) {
-    const req = el.requestFullscreen ||
-                el.webkitRequestFullscreen ||
-                el.webkitRequestFullScreen ||
-                el.mozRequestFullScreen ||
+    const req = el.requestFullscreen || el.webkitRequestFullscreen ||
+                el.webkitRequestFullScreen || el.mozRequestFullScreen ||
                 el.msRequestFullscreen;
     if (req) {
       try {
@@ -774,10 +1420,8 @@ function toggleFullscreen() {
       showToast('ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਫੁੱਲ ਸਕਰੀਨ ਸਮਰਥਿਤ ਨਹੀਂ', true);
     }
   } else {
-    const exit = document.exitFullscreen ||
-                 document.webkitExitFullscreen ||
-                 document.webkitCancelFullScreen ||
-                 document.mozCancelFullScreen ||
+    const exit = document.exitFullscreen || document.webkitExitFullscreen ||
+                 document.webkitCancelFullScreen || document.mozCancelFullScreen ||
                  document.msExitFullscreen;
     if (exit) {
       try {
@@ -787,21 +1431,18 @@ function toggleFullscreen() {
     }
   }
 }
-
 btnFullscreen.addEventListener('click', toggleFullscreen);
-
 ['fullscreenchange', 'webkitfullscreenchange',
  'mozfullscreenchange', 'MSFullscreenChange']
   .forEach(ev => document.addEventListener(ev, updateFullscreenButton));
 
 /* =========================================================
-   Lock state persistence
+   Lock state
    ========================================================= */
 function persistLockState() {
   try {
     localStorage.setItem(LOCK_STATE_KEY, JSON.stringify({
-      locked: globalLocked,
-      updatedAt: Date.now()
+      locked: globalLocked, updatedAt: Date.now()
     }));
   } catch (e) {}
 }
@@ -815,7 +1456,7 @@ function restoreLockState() {
 }
 
 /* =========================================================
-   Save / Load / Remove main data
+   Save / Load / Remove
    ========================================================= */
 function hasSavedData() {
   try { return localStorage.getItem(STORAGE_KEY) !== null; }
@@ -840,17 +1481,13 @@ function saveDataToBrowser() {
       };
     }
     const state = {
-      version: 1,
-      savedAt: Date.now(),
+      version: 1, savedAt: Date.now(),
       currentFileName: currentFileName,
       sheets: serializedSheets,
       sheetOrder: sheetOrder.slice(),
       visibleSheetOrder: visibleSheetOrder.slice(),
-      active: active,
-      units: units,
-      unitCounter: unitCounter,
-      selectedUnitId: selectedUnitId,
-      excelHidden: excelHidden
+      active: active, units: units, unitCounter: unitCounter,
+      selectedUnitId: selectedUnitId, excelHidden: excelHidden
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     persistLockState();
@@ -862,10 +1499,8 @@ function saveDataToBrowser() {
 }
 
 function removeDataFromBrowser() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-    return true;
-  } catch (err) { return false; }
+  try { localStorage.removeItem(STORAGE_KEY); return true; }
+  catch (err) { return false; }
 }
 
 function loadSavedData() {
@@ -901,9 +1536,7 @@ function loadSavedData() {
     sheetOrder.forEach(n => {
       if (sheets[n]) aoaPerSheet[n] = sheets[n].aoa;
     });
-    if (Object.keys(aoaPerSheet).length) {
-      buildFormulaEngine(aoaPerSheet);
-    }
+    if (Object.keys(aoaPerSheet).length) buildFormulaEngine(aoaPerSheet);
     const anyHidden = sheetOrder.some(n =>
       sheets[n] && (sheets[n].hidden ||
                     (sheets[n].hiddenRows && sheets[n].hiddenRows.size > 0) ||
@@ -1045,7 +1678,7 @@ function nextUnitName() {
 }
 
 /* =========================================================
-   Excel ਪੈਨ ਲੁਕਾਓ / ਦਿਖਾਓ
+   Excel visibility
    ========================================================= */
 function applyExcelVisibility() {
   leftPane.style.display = excelHidden ? 'none' : '';
@@ -1069,7 +1702,7 @@ function ensureExcelVisible() {
 }
 
 /* =========================================================
-   ਹਾਈਲਾਈਟ
+   Highlight
    ========================================================= */
 function clearSourceHighlight(immediate) {
   if (sourceHlTimer) { clearTimeout(sourceHlTimer); sourceHlTimer = null; }
@@ -1138,7 +1771,7 @@ function highlightRanges(ranges, unitId) {
 }
 
 /* =========================================================
-   ਵੈਲਿਡੇਸ਼ਨ ਲਿਸਟ
+   Validation
    ========================================================= */
 function getCellListInfo(sheetName, ref) {
   const c = parseCell(ref);
@@ -1188,7 +1821,7 @@ function computeComboSources(combo) {
 }
 
 /* =========================================================
-   ਐਕਸਲ ਪੜ੍ਹਨਾ
+   Excel parse
    ========================================================= */
 function sheetToAoa(ws) {
   if (!ws || !ws['!ref']) return [['']];
@@ -1308,7 +1941,7 @@ function buildFormulaEngine(aoaPerSheet) {
 }
 
 /* =========================================================
-   ਲਿਸਟ ਵੈਲਿਊਜ਼
+   List values
    ========================================================= */
 function resolveRangeValues(rangeRef, defaultSheet) {
   let sheetName = defaultSheet, ref = rangeRef;
@@ -1376,7 +2009,7 @@ function refreshValidationOptions() {
 }
 
 /* =========================================================
-   ਵਿਜ਼ਿਬਲ ਕਤਾਰਾਂ/ਕਾਲਮ
+   Visible rows/cols
    ========================================================= */
 function computeVisibleIndices(sheetName) {
   const sd = sheets[sheetName];
@@ -1407,7 +2040,7 @@ function computeVisibleIndices(sheetName) {
 }
 
 /* =========================================================
-   ਗਰਿੱਡ ਰੈਂਡਰ
+   Grid render
    ========================================================= */
 function renderGrid() {
   if (!active || !sheets[active]) {
@@ -1515,7 +2148,7 @@ function renderTabs() {
 }
 
 /* =========================================================
-   ਸੈੱਲ ਐਡਿਟ
+   Cell edit
    ========================================================= */
 table.addEventListener('focusin', e => {
   if (pickingState.active) { e.preventDefault(); return; }
@@ -1623,7 +2256,7 @@ function refreshAllCells() {
 }
 
 /* =========================================================
-   ਪਿਕਿੰਗ
+   Picking
    ========================================================= */
 function startPicking(mode, target) {
   ensureExcelVisible();
@@ -1758,7 +2391,6 @@ function openModal() {
   modalOverlay.classList.add('show');
 }
 
-/* ⬇️ FIX: Add Table button click listener ⬇️ */
 btnAddUnit.addEventListener('click', openModal);
 
 modalCancel.addEventListener('click', () => {
@@ -1866,7 +2498,7 @@ modalOk.addEventListener('click', () => {
 });
 
 /* =========================================================
-   ਦੋ-ਪਾਸੜ ਸਿੰਕ
+   Sync combo -> source
    ========================================================= */
 function syncComboToSource(combo, newValue) {
   if (!combo.cellList) return false;
@@ -1894,7 +2526,7 @@ function flashSourceCell(sheetName, ref) {
 }
 
 /* =========================================================
-   ਲਾਕ / ਅਨਲਾਕ
+   Lock / Unlock
    ========================================================= */
 function applyLockState() {
   controlsContainer.classList.toggle('locked', globalLocked);
@@ -1923,11 +2555,12 @@ btnLock.addEventListener('click', () => {
   } else {
     globalLocked = true;
     applyLockState();
+    renderUnits();
   }
 });
 
 /* =========================================================
-   ਪਾਸਵਰਡ ਮੋਡਲ
+   Password modal
    ========================================================= */
 function openPasswordModal(purpose) {
   pwPurpose = purpose || 'unlock';
@@ -1964,6 +2597,7 @@ function tryPasswordAction() {
   if (purpose === 'unlock') {
     globalLocked = false;
     applyLockState();
+    renderUnits();
     showToast('ਅਨਲਾਕ ਹੋ ਗਿਆ ✓');
   } else if (purpose === 'remove') {
     const ok = removeDataFromBrowser();
@@ -1987,7 +2621,7 @@ pwModalOverlay.addEventListener('mousedown', e => {
 });
 
 /* =========================================================
-   ਯੂਨਿਟ ਸਿਲੈਕਟਰ (ਟੂਲਬਾਰ ਵਿੱਚ)
+   Unit selector
    ========================================================= */
 function updateUnitSelector() {
   if (!units.length) {
@@ -2017,7 +2651,7 @@ unitSelector.addEventListener('change', () => {
 });
 
 /* =========================================================
-   ਟੂਲਬਾਰ ਕੰਬੋ ਬੌਕਸ ਰੈਂਡਰ
+   Toolbar combo render
    ========================================================= */
 function renderToolbarCombo(unit) {
   const combo = unit.combo;
@@ -2087,11 +2721,13 @@ function renderToolbarCombo(unit) {
       }
     }
     showSrc();
+    /* combo ਬਦਲਣ 'ਤੇ ਫੋਟੋ ਫਾਈਲਨੇਮ ਬਦਲਦਾ ਹੈ — ਟੇਬਲ ਦੁਬਾਰਾ render ਕਰੋ */
+    renderUnits();
   };
 }
 
 /* =========================================================
-   ਯੂਨਿਟ ਕਾਰਡ ਰੈਂਡਰ
+   Unit card render
    ========================================================= */
 function resolveRangeTo2D(sheetName, startRef, endRef) {
   if (!hf || !sheetName) return [];
@@ -2138,7 +2774,6 @@ function renderUnits() {
   if (!unit) { controlsContainer.innerHTML = ''; return; }
   selectedUnitId = unit.id;
 
-  /* ਟੂਲਬਾਰ ਕੰਬੋ ਬੌਕਸ ਨੂੰ ਭਰੋ */
   renderToolbarCombo(unit);
 
   controlsContainer.innerHTML = '';
@@ -2159,6 +2794,14 @@ function renderUnits() {
     unit.name = nameInput.value;
     const opt = unitSelector.querySelector(`option[value="${unit.id}"]`);
     if (opt) opt.textContent = unit.name;
+    /* ਨਾਮ ਬਦਲਣ 'ਤੇ ਫੋਟੋ ਫਾਈਲਨੇਮ ਬਦਲਦਾ ਹੈ — debounced render */
+    clearTimeout(nameInput._renderTimer);
+    nameInput._renderTimer = setTimeout(() => {
+      const cur = nameInput.value;
+      renderUnits();
+      const ni = controlsContainer.querySelector('.unit-name-input');
+      if (ni) { ni.value = cur; ni.focus(); }
+    }, 600);
   });
 
   const del = document.createElement('button');
@@ -2177,7 +2820,7 @@ function renderUnits() {
   head.appendChild(del);
   card.appendChild(head);
 
-  /* Table section */
+  /* Table */
   const tableSec = document.createElement('div');
   tableSec.className = 'unit-section';
 
@@ -2193,12 +2836,95 @@ function renderUnits() {
     tr.appendChild(td);
     tbl.appendChild(tr);
   } else {
-    data2D.forEach(row => {
+    data2D.forEach((row, ri) => {
       const tr = document.createElement('tr');
-      row.forEach(v => {
+      const isHeaderRow = (ri === 0);
+      row.forEach((v) => {
         const td = document.createElement('td');
-        td.textContent = v;
         td.title = v;
+
+        /* Header row: plain cell, no dots */
+        if (isHeaderRow) {
+          td.textContent = v;
+          tr.appendChild(td);
+          return;
+        }
+
+        /* Non-header: text + actions inline */
+        const inner = document.createElement('div');
+        inner.className = 'cell-inner';
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'cell-text';
+        textSpan.textContent = v;
+        textSpan.title = v;
+        inner.appendChild(textSpan);
+
+        const baseFileName = photoFileNameFromUnitCell(unit, v);
+        const realFile = baseFileName ? findExistingPhotoFile(baseFileName) : null;
+        const hasPhoto = !!realFile;
+
+        const dots = document.createElement('div');
+        dots.className = 'cell-dots';
+
+        /* Add button */
+        if (!globalLocked && baseFileName) {
+          const addDot = document.createElement('span');
+          addDot.className = 'cell-dot dot-add';
+          addDot.title = 'ਫੋਟੋ ਐਡ ਕਰੋ (' + baseFileName + ')';
+          addDot.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            addPhotoForCellText(unit, v);
+          });
+          dots.appendChild(addDot);
+        } else if (!globalLocked && !baseFileName) {
+          const dis = document.createElement('span');
+          dis.className = 'cell-dot-disabled';
+          dis.title = 'ਪਹਿਲਾਂ ਸੈੱਲ ਵਿੱਚ ਨਾਮ ਲਿਖੋ';
+          dots.appendChild(dis);
+        } else {
+          const sp = document.createElement('span');
+          sp.className = 'cell-dot-spacer';
+          dots.appendChild(sp);
+        }
+
+        /* Delete button (if photo exists) */
+        if (hasPhoto && !globalLocked) {
+          const delDot = document.createElement('span');
+          delDot.className = 'cell-dot dot-del';
+          delDot.textContent = '×';
+          delDot.title = 'ਫੋਟੋ ਹਟਾਓ (' + realFile + ')';
+          delDot.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            deletePhotoForCellText(unit, v);
+          });
+          dots.appendChild(delDot);
+        }
+
+        /* View dot (thumbnail) — ਟੈਕਸਟ ਦੇ ਸਾਹਮਣੇ, ਵੱਡੀ */
+        if (hasPhoto) {
+          const viewDot = document.createElement('span');
+          viewDot.className = 'cell-dot dot-view';
+          viewDot.title = 'ਫੋਟੋ ਦੇਖੋ (' + realFile + ')';
+          viewDot.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            viewPhotoForCellText(unit, v);
+          });
+          dots.appendChild(viewDot);
+
+          (async () => {
+            try {
+              const thumbUrl = await loadThumbnailFor(realFile);
+              if (thumbUrl) {
+                viewDot.style.backgroundImage = 'url("' + thumbUrl + '")';
+              }
+            } catch (e) { /* ignore */ }
+          })();
+        }
+
+        inner.appendChild(dots);
+        td.classList.add('has-dots');
+        td.appendChild(inner);
         tr.appendChild(td);
       });
       tbl.appendChild(tr);
@@ -2207,24 +2933,20 @@ function renderUnits() {
   tableSec.appendChild(tbl);
 
   const rs = unit.table.rangeSource;
-
   tbl.addEventListener('mouseenter', () => {
     highlightRanges([{
-      sheet: rs.sheet,
-      startRef: rs.startRef,
-      endRef: rs.endRef
+      sheet: rs.sheet, startRef: rs.startRef, endRef: rs.endRef
     }], unit.id);
   });
   tbl.addEventListener('mouseleave', () => clearSourceHighlight(false));
 
   card.appendChild(tableSec);
-
   controlsContainer.appendChild(card);
   applyLockState();
 }
 
 /* =========================================================
-   ਆਟੋ-ਯੂਨਿਟ ਬਣਾਉਣਾ (ਹਰ ਸ਼ੀਟ ਵਾਸਤੇ)
+   Auto units
    ========================================================= */
 function autoCreateDefaultUnits() {
   units = [];
@@ -2255,7 +2977,7 @@ function autoCreateDefaultUnits() {
 }
 
 /* =========================================================
-   ਫਾਈਲ ਪ੍ਰੋਸੈਸਿੰਗ (ਸਾਂਝੀ)
+   File processing
    ========================================================= */
 async function processExcelBuffer(arrayBuffer, fileName) {
   try {
@@ -2298,10 +3020,8 @@ async function processExcelBuffer(arrayBuffer, fileName) {
     selected = { r: 0, c: 0 };
     validationCache = {};
 
-    /* ਹਰ ਦਿਖਣ ਵਾਲੀ ਸ਼ੀਟ ਲਈ ਇੱਕ ਯੂਨਿਟ ਆਟੋ-ਬਣਾਓ */
     autoCreateDefaultUnits();
 
-    /* ਫਾਈਲ ਲੋਡ ਹੁਣੇ ਹੀ ਖੱਬਾ Excel ਪੈਨ ਲੁਕਾਓ */
     excelHidden = true;
     applyExcelVisibility();
 
@@ -2315,7 +3035,7 @@ async function processExcelBuffer(arrayBuffer, fileName) {
 }
 
 /* =========================================================
-   ਆਟੋ-ਲੋਡ ਬੰਡਲਡ ਐਕਸਲ (GitHub ਤੋਂ)
+   Auto-load bundled excel
    ========================================================= */
 async function autoLoadBundledExcel() {
   try {
@@ -2338,23 +3058,26 @@ async function autoLoadBundledExcel() {
 }
 
 /* =========================================================
-   ਫਾਈਲ ਅਪਲੋਡ
+   File upload
    ========================================================= */
 fileInput.addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
   try {
+    loadingBadge.classList.add('show');
     const buffer = await file.arrayBuffer();
     await processExcelBuffer(buffer, file.name);
   } catch (err) {
     console.error(err);
     alert('ਫਾਈਲ ਪੜ੍ਹਨ ਵਿੱਚ ਗਲਤੀ ਆਈ।');
+  } finally {
+    loadingBadge.classList.remove('show');
   }
   fileInput.value = '';
 });
 
 /* =========================================================
-   ਸ਼ੁਰੂਆਤ
+   Init
    ========================================================= */
 restoreLockState();
 applyExcelVisibility();
@@ -2362,6 +3085,8 @@ updateSaveRemoveButton();
 updateFullscreenButton();
 
 (async function init() {
+  await restorePhotosFolder();
+  await restoreLastSourceFileHandle();
   await autoLoadBundledExcel();
   applyLockState();
   if (globalLocked) {
