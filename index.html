@@ -151,16 +151,17 @@
     background: linear-gradient(135deg, #f0f7f4 0%, #eaf3fb 50%, #fdf4e8 100%);
     overflow: hidden; }
 
-  .right-toolbar { display: flex; gap: 8px; padding: 10px 12px;
+  .right-toolbar { display: flex; gap: 6px; padding: 8px 10px;
     background: linear-gradient(120deg, #6a3d9a 0%, #8e44ad 50%, #9b59b6 100%);
     border-bottom: 2px solid #5b2c87;
     flex-wrap: wrap; flex: 0 0 auto; align-items: center;
     box-shadow: 0 2px 6px rgba(106,61,154,.25); }
   .right-toolbar button {
     color: #fff; border: none;
-    border-radius: 6px; padding: 8px 14px;
-    font-size: 13px; font-weight: 700; cursor: pointer;
+    border-radius: 5px; padding: 5px 10px;
+    font-size: 11.5px; font-weight: 700; cursor: pointer;
     font-family: inherit; transition: all .15s;
+    white-space: nowrap;
     box-shadow: 0 2px 4px rgba(0,0,0,.15); }
 
   #btnAddUnit { background: linear-gradient(135deg, #27ae60, #16a085); }
@@ -171,37 +172,62 @@
   #btnSaveRemove.remove-state { background: linear-gradient(135deg, #e91e63, #ad1457); }
   #btnSaveRemove.remove-state:hover { background: linear-gradient(135deg, #d81b60, #880e4f); transform: translateY(-1px); }
 
-  #btnHideExcel { margin-left: auto; background: linear-gradient(135deg, #3498db, #2980b9); }
+  #btnHideExcel { background: linear-gradient(135deg, #3498db, #2980b9); }
   #btnHideExcel:hover { background: linear-gradient(135deg, #2c85c2, #216fa0); transform: translateY(-1px); }
   #btnHideExcel.hidden-state { background: linear-gradient(135deg, #f39c12, #e67e22); }
-  #btnHideExcel.hidden-state:hover { background: linear-gradient(135deg, #d98a0c, #c46c0f); }
+  #btnHideExcel.hidden-state:hover { background: linear-gradient(135deg, #d98a0c, #c46c0f); transform: translateY(-1px); }
 
   #btnLock { background: linear-gradient(135deg, #e74c3c, #c0392b); }
   #btnLock:hover { background: linear-gradient(135deg, #d13a2b, #a82e20); transform: translateY(-1px); }
   #btnLock.locked { background: linear-gradient(135deg, #7f8c8d, #576574); }
   #btnLock.locked:hover { background: linear-gradient(135deg, #6c7a7b, #47535d); }
 
-  .unit-selector-bar {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px;
-    background: linear-gradient(90deg, #fce4b6 0%, #fde8c8 100%);
-    border-bottom: 2px solid #f0c67a;
-    flex: 0 0 auto;
-    box-shadow: 0 1px 3px rgba(240,198,122,.3); }
-  .unit-selector-bar label {
-    font-size: 13px; font-weight: 700; color: #8a5a00;
-    white-space: nowrap; }
-  .unit-selector-bar select {
-    flex: 1; min-width: 0;
-    padding: 8px 12px; font-size: 13.5px;
-    border: 2px solid #e0a94a; border-radius: 6px;
-    background: #fff; font-family: inherit; font-weight: 700;
-    color: #6a4200; cursor: pointer; outline: none;
-    transition: border-color .15s, box-shadow .15s;
-    box-shadow: 0 1px 3px rgba(224,169,74,.2); }
-  .unit-selector-bar select:focus {
-    border-color: #d18b1f;
-    box-shadow: 0 0 0 3px rgba(224,169,74,.25); }
+  #btnFullscreen { background: linear-gradient(135deg, #16a085, #0e7c66); }
+  #btnFullscreen:hover { background: linear-gradient(135deg, #128a75, #0a6650); transform: translateY(-1px); }
+  #btnFullscreen.fs-active { background: linear-gradient(135deg, #e67e22, #d35400); }
+  #btnFullscreen.fs-active:hover { background: linear-gradient(135deg, #d06f1a, #b34700); transform: translateY(-1px); }
+
+  /* ===== ਟੂਲਬਾਰ ਦੇ ਕੰਬੋ ਬੌਕਸ ===== */
+  .right-toolbar .spacer { flex: 1 1 auto; min-width: 0; }
+
+  .toolbar-combos {
+    display: none; align-items: center; gap: 6px;
+    flex: 0 1 auto; min-width: 0; }
+  .toolbar-combos.show { display: flex; }
+
+  .combo-label {
+    font-size: 11.5px; font-weight: 700;
+    color: #f3e9ff; white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+
+  .toolbar-combos select {
+    padding: 6px 26px 6px 10px;
+    font-size: 12.5px; font-weight: 700;
+    font-family: inherit;
+    border: 2px solid #7d4fb0; border-radius: 6px;
+    background-color: #fff;
+    color: #4a2a6e; cursor: pointer; outline: none;
+    min-width: 104px; max-width: 190px;
+    text-overflow: ellipsis;
+    appearance: none; -webkit-appearance: none;
+    background-image:
+      linear-gradient(45deg, transparent 50%, #7d4fb0 50%),
+      linear-gradient(135deg, #7d4fb0 50%, transparent 50%);
+    background-position: calc(100% - 13px) 11px, calc(100% - 8px) 11px;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    box-shadow: 0 1px 3px rgba(0,0,0,.18);
+    transition: border-color .15s, box-shadow .15s; }
+  .toolbar-combos select:focus {
+    border-color: #b07be0;
+    box-shadow: 0 0 0 3px rgba(176,123,224,.35); }
+  .toolbar-combos select.synced {
+    border-color: #27ae60; color: #14532d;
+    background-image:
+      linear-gradient(45deg, transparent 50%, #27ae60 50%),
+      linear-gradient(135deg, #27ae60 50%, transparent 50%); }
+  .toolbar-combos select.synced:focus {
+    box-shadow: 0 0 0 3px rgba(39,174,96,.3); }
 
   .right-content { flex: 1 1 auto; overflow-y: auto;
     padding: 16px 16px 30px; }
@@ -473,6 +499,9 @@
     border: 2px solid #eef4f9; }
   .right-content::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #8fb4d4, #5e8cb0); }
+
+  /* Fullscreen mode */
+  :fullscreen .app { height: 100vh; width: 100vw; }
 </style>
 </head>
 
@@ -511,15 +540,20 @@
 
   <section class="pane right">
     <div class="right-toolbar">
-      <button id="btnAddUnit">➕ ਨਵਾਂ ਟੇਬਲ ਸ਼ਾਮਲ ਕਰੋ</button>
-      <button id="btnSaveRemove">💾 Save Data to Browser</button>
+      <button id="btnAddUnit">➕ ਨਵਾਂ ਟੇਬਲ</button>
+      <button id="btnSaveRemove">💾 Save Data</button>
       <button id="btnHideExcel">🙈 Excel ਲੁਕਾਓ</button>
       <button id="btnLock" title="ਲਾਕ/ਅਨਲਾਕ">🔓 Unlock</button>
-    </div>
+      <button id="btnFullscreen" title="ਫੁੱਲ ਸਕਰੀਨ">⛶ ਫੁੱਲ ਸਕਰੀਨ</button>
 
-    <div class="unit-selector-bar" id="unitSelectorBar" style="display:none">
-      <label for="unitSelector">ਟੇਬਲ ਚੁਣੋ:</label>
-      <select id="unitSelector"></select>
+      <div class="spacer"></div>
+
+      <div class="toolbar-combos" id="toolbarCombos">
+        <span class="combo-label">ਟੇਬਲ:</span>
+        <select id="unitSelector" title="ਟੇਬਲ ਚੁਣੋ"></select>
+        <span class="combo-label">ਚੋਣ:</span>
+        <select id="unitCombo" title="ਕੰਬੋ ਬੌਕਸ"></select>
+      </div>
     </div>
 
     <div class="right-content" id="controlsContainer">
@@ -619,12 +653,14 @@ const pickCancel  = document.getElementById('pickCancel');
 const leftPane    = document.getElementById('leftPane');
 
 const controlsContainer = document.getElementById('controlsContainer');
-const unitSelectorBar   = document.getElementById('unitSelectorBar');
+const toolbarCombos     = document.getElementById('toolbarCombos');
 const unitSelector      = document.getElementById('unitSelector');
+const unitCombo         = document.getElementById('unitCombo');
 const btnAddUnit  = document.getElementById('btnAddUnit');
 const btnSaveRemove = document.getElementById('btnSaveRemove');
 const btnHideExcel = document.getElementById('btnHideExcel');
 const btnLock     = document.getElementById('btnLock');
+const btnFullscreen = document.getElementById('btnFullscreen');
 
 const modalOverlay  = document.getElementById('modalOverlay');
 const comboRange    = document.getElementById('comboRange');
@@ -692,6 +728,65 @@ function showToast(msg, isError) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
 }
+
+/* =========================================================
+   ਫੁੱਲ ਸਕਰੀਨ
+   ========================================================= */
+function isFullscreen() {
+  return !!(document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement);
+}
+
+function updateFullscreenButton() {
+  if (isFullscreen()) {
+    btnFullscreen.textContent = '⛶ ਬੰਦ ਕਰੋ';
+    btnFullscreen.title = 'ਫੁੱਲ ਸਕਰੀਨ ਬੰਦ ਕਰੋ';
+    btnFullscreen.classList.add('fs-active');
+  } else {
+    btnFullscreen.textContent = '⛶ ਫੁੱਲ ਸਕਰੀਨ';
+    btnFullscreen.title = 'ਫੁੱਲ ਸਕਰੀਨ';
+    btnFullscreen.classList.remove('fs-active');
+  }
+}
+
+function toggleFullscreen() {
+  const el = document.documentElement;
+  if (!isFullscreen()) {
+    const req = el.requestFullscreen ||
+                el.webkitRequestFullscreen ||
+                el.webkitRequestFullScreen ||
+                el.mozRequestFullScreen ||
+                el.msRequestFullscreen;
+    if (req) {
+      try {
+        const p = req.call(el);
+        if (p && typeof p.catch === 'function') p.catch(err => console.warn(err));
+      } catch (err) { console.warn(err); }
+    } else {
+      showToast('ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਫੁੱਲ ਸਕਰੀਨ ਸਮਰਥਿਤ ਨਹੀਂ', true);
+    }
+  } else {
+    const exit = document.exitFullscreen ||
+                 document.webkitExitFullscreen ||
+                 document.webkitCancelFullScreen ||
+                 document.mozCancelFullScreen ||
+                 document.msExitFullscreen;
+    if (exit) {
+      try {
+        const p = exit.call(document);
+        if (p && typeof p.catch === 'function') p.catch(err => console.warn(err));
+      } catch (err) { console.warn(err); }
+    }
+  }
+}
+
+btnFullscreen.addEventListener('click', toggleFullscreen);
+
+['fullscreenchange', 'webkitfullscreenchange',
+ 'mozfullscreenchange', 'MSFullscreenChange']
+  .forEach(ev => document.addEventListener(ev, updateFullscreenButton));
 
 /* =========================================================
    Lock state persistence
@@ -824,11 +919,11 @@ function loadSavedData() {
 
 function updateSaveRemoveButton() {
   if (hasSavedData()) {
-    btnSaveRemove.textContent = '🗑️ Remove Data From Browser';
+    btnSaveRemove.textContent = '🗑️ Remove Data';
     btnSaveRemove.classList.add('remove-state');
     btnSaveRemove.title = 'ਬ੍ਰਾਊਜ਼ਰ ਤੋਂ ਸੇਵ ਕੀਤਾ ਡਾਟਾ ਹਟਾਓ (ਪਾਸਵਰਡ ਲੋੜੀਂਦਾ)';
   } else {
-    btnSaveRemove.textContent = '💾 Save Data to Browser';
+    btnSaveRemove.textContent = '💾 Save Data';
     btnSaveRemove.classList.remove('remove-state');
     btnSaveRemove.title = 'ਮੌਜੂਦਾ ਸੈਸ਼ਨ ਦਾ ਡਾਟਾ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਸੇਵ ਕਰੋ';
   }
@@ -1657,6 +1752,9 @@ function openModal() {
   modalOverlay.classList.add('show');
 }
 
+/* ⬇️ FIX: Add Table button click listener ⬇️ */
+btnAddUnit.addEventListener('click', openModal);
+
 modalCancel.addEventListener('click', () => {
   if (pickingState.active) stopPicking();
   modalOverlay.classList.remove('show');
@@ -1883,15 +1981,16 @@ pwModalOverlay.addEventListener('mousedown', e => {
 });
 
 /* =========================================================
-   ਯੂਨਿਟ ਸਿਲੈਕਟਰ
+   ਯੂਨਿਟ ਸਿਲੈਕਟਰ (ਟੂਲਬਾਰ ਵਿੱਚ)
    ========================================================= */
 function updateUnitSelector() {
   if (!units.length) {
-    unitSelectorBar.style.display = 'none';
+    toolbarCombos.classList.remove('show');
     unitSelector.innerHTML = '';
+    unitCombo.innerHTML = '';
     return;
   }
-  unitSelectorBar.style.display = 'flex';
+  toolbarCombos.classList.add('show');
   unitSelector.innerHTML = '';
   units.forEach(u => {
     const o = document.createElement('option');
@@ -1905,10 +2004,85 @@ function updateUnitSelector() {
     unitSelector.value = String(selectedUnitId);
   }
 }
+
 unitSelector.addEventListener('change', () => {
   selectedUnitId = +unitSelector.value;
   renderUnits();
 });
+
+/* =========================================================
+   ਟੂਲਬਾਰ ਕੰਬੋ ਬੌਕਸ ਰੈਂਡਰ
+   ========================================================= */
+function renderToolbarCombo(unit) {
+  const combo = unit.combo;
+  let values = [];
+
+  if (combo.cellList) {
+    const info = getCellListInfo(combo.cellList.sheet, combo.cellList.ref);
+    if (info) values = info.values;
+    const curVal = getCellValue(combo.cellList.sheet, combo.cellList.ref);
+    combo.value = curVal || '';
+  } else if (combo.rangeSource) {
+    const data2D = resolveRangeTo2D(combo.rangeSource.sheet,
+      combo.rangeSource.startRef, combo.rangeSource.endRef);
+    data2D.forEach(row => row.forEach(v => {
+      if (v !== '' && !values.includes(v)) values.push(v);
+    }));
+  }
+
+  unitCombo.innerHTML = '';
+  unitCombo.classList.toggle('synced', !!combo.cellList);
+  unitCombo.title = combo.cellList
+    ? (combo.cellList.sheet + '!' + combo.cellList.ref)
+    : 'ਕੰਬੋ ਬੌਕਸ';
+
+  const empty = document.createElement('option');
+  empty.value = '';
+  empty.textContent = '— ਚੁਣੋ —';
+  unitCombo.appendChild(empty);
+
+  values.forEach(v => {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v;
+    if (v === combo.value) o.selected = true;
+    unitCombo.appendChild(o);
+  });
+
+  if (combo.value && !values.includes(combo.value)) {
+    const o = document.createElement('option');
+    o.value = combo.value; o.textContent = combo.value;
+    o.selected = true;
+    unitCombo.appendChild(o);
+  }
+
+  const showSrc = () => { highlightRanges(computeComboSources(combo), unit.id); };
+
+  unitCombo.onmousedown  = showSrc;
+  unitCombo.onfocus      = showSrc;
+  unitCombo.onmouseenter = showSrc;
+  unitCombo.ontouchstart = showSrc;
+  unitCombo.onmouseleave = () => clearSourceHighlight(false);
+  unitCombo.onblur       = () => clearSourceHighlight(false);
+
+  unitCombo.onchange = () => {
+    const newVal = unitCombo.value;
+    combo.value = newVal;
+    if (combo.syncBack && combo.cellList) {
+      const changed = syncComboToSource(combo, newVal);
+      if (changed) {
+        refreshAllCells();
+        refreshValidationOptions();
+        flashSourceCell(combo.cellList.sheet, combo.cellList.ref);
+        setTimeout(() => {
+          renderUnits();
+          highlightRanges(computeComboSources(combo), unit.id);
+        }, 20);
+        return;
+      }
+    }
+    showSrc();
+  };
+}
 
 /* =========================================================
    ਯੂਨਿਟ ਕਾਰਡ ਰੈਂਡਰ
@@ -1949,6 +2123,7 @@ function renderUnits() {
   if (!units.length) {
     controlsContainer.innerHTML =
       '<div class="empty-msg">ਹਾਲੇ ਕੋਈ ਟੇਬਲ ਨਹੀਂ ਜੋੜਿਆ ਗਿਆ</div>';
+    unitCombo.innerHTML = '';
     applyLockState();
     return;
   }
@@ -1956,6 +2131,9 @@ function renderUnits() {
   const unit = units.find(u => u.id === selectedUnitId) || units[0];
   if (!unit) { controlsContainer.innerHTML = ''; return; }
   selectedUnitId = unit.id;
+
+  /* ਟੂਲਬਾਰ ਕੰਬੋ ਬੌਕਸ ਨੂੰ ਭਰੋ */
+  renderToolbarCombo(unit);
 
   controlsContainer.innerHTML = '';
   const card = document.createElement('div');
@@ -1992,80 +2170,6 @@ function renderUnits() {
   head.appendChild(nameInput);
   head.appendChild(del);
   card.appendChild(head);
-
-  /* Combo section */
-  const comboSec = document.createElement('div');
-  comboSec.className = 'unit-section';
-
-  let values = [];
-  const combo = unit.combo;
-
-  if (combo.cellList) {
-    const info = getCellListInfo(combo.cellList.sheet, combo.cellList.ref);
-    if (info) values = info.values;
-    const curVal = getCellValue(combo.cellList.sheet, combo.cellList.ref);
-    combo.value = curVal || '';
-  } else if (combo.rangeSource) {
-    const data2D = resolveRangeTo2D(combo.rangeSource.sheet,
-      combo.rangeSource.startRef, combo.rangeSource.endRef);
-    data2D.forEach(row => row.forEach(v => {
-      if (v !== '' && !values.includes(v)) values.push(v);
-    }));
-  }
-
-  const sel = document.createElement('select');
-  sel.className = 'ctrl-select';
-  if (combo.cellList) sel.classList.add('synced');
-
-  const empty = document.createElement('option');
-  empty.value = '';
-  empty.textContent = '— ਚੁਣੋ —';
-  sel.appendChild(empty);
-
-  values.forEach(v => {
-    const o = document.createElement('option');
-    o.value = v; o.textContent = v;
-    if (v === combo.value) o.selected = true;
-    sel.appendChild(o);
-  });
-
-  if (combo.value && !values.includes(combo.value)) {
-    const o = document.createElement('option');
-    o.value = combo.value; o.textContent = combo.value;
-    o.selected = true;
-    sel.appendChild(o);
-  }
-
-  const showSrc = () => { highlightRanges(computeComboSources(combo), unit.id); };
-
-  sel.addEventListener('mousedown', showSrc);
-  sel.addEventListener('focus', showSrc);
-  sel.addEventListener('touchstart', showSrc, { passive: true });
-  sel.addEventListener('mouseenter', showSrc);
-  sel.addEventListener('mouseleave', () => clearSourceHighlight(false));
-  sel.addEventListener('blur', () => clearSourceHighlight(false));
-
-  sel.addEventListener('change', () => {
-    const newVal = sel.value;
-    combo.value = newVal;
-    if (combo.syncBack && combo.cellList) {
-      const changed = syncComboToSource(combo, newVal);
-      if (changed) {
-        refreshAllCells();
-        refreshValidationOptions();
-        flashSourceCell(combo.cellList.sheet, combo.cellList.ref);
-        setTimeout(() => {
-          renderUnits();
-          highlightRanges(computeComboSources(combo), unit.id);
-        }, 20);
-        return;
-      }
-    }
-    showSrc();
-  });
-
-  comboSec.appendChild(sel);
-  card.appendChild(comboSec);
 
   /* Table section */
   const tableSec = document.createElement('div');
@@ -2249,6 +2353,7 @@ fileInput.addEventListener('change', async e => {
 restoreLockState();
 applyExcelVisibility();
 updateSaveRemoveButton();
+updateFullscreenButton();
 
 (async function init() {
   await autoLoadBundledExcel();
