@@ -232,14 +232,14 @@
     box-shadow: 0 0 0 3px rgba(39,174,96,.3); }
 
   .right-content { flex: 1 1 auto; overflow-y: auto;
-    padding: 16px 16px 30px; }
+    padding: 12px 12px 20px; }
   .empty-msg { text-align: center; color: #7a8899;
     margin-top: 40px; font-size: 15px; font-weight: 600; line-height: 1.9; }
 
   .unit-card {
     background: linear-gradient(180deg, #ffffff 0%, #f9fcff 100%);
     border: 2px solid #c8d9e8;
-    border-radius: 12px; padding: 16px 18px; margin-bottom: 14px;
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
     box-shadow: 0 4px 12px rgba(100,140,180,.12),
                 inset 0 1px 0 #fff;
     transition: border-color .2s, box-shadow .2s, transform .15s;
@@ -256,14 +256,14 @@
                 0 4px 14px rgba(255,152,0,.15); }
 
   .unit-head { display: flex; justify-content: space-between;
-    align-items: center; gap: 8px; margin-bottom: 14px;
-    padding-bottom: 12px; border-bottom: 2px dashed #d9e5ee; }
+    align-items: center; gap: 8px; margin-bottom: 10px;
+    padding-bottom: 8px; border-bottom: 2px dashed #d9e5ee; }
   .unit-name-input {
-    flex: 1; font-size: 18px; font-weight: 800;
+    flex: 1; font-size: 16px; font-weight: 800;
     color: #1a4d7a;
     background: linear-gradient(90deg, #e8f4fc 0%, #f4faff 100%);
     border: 2px solid #b3d4ec;
-    padding: 7px 12px; border-radius: 8px;
+    padding: 5px 10px; border-radius: 8px;
     font-family: inherit; min-width: 0;
     letter-spacing: .3px;
     transition: border-color .15s, box-shadow .15s; }
@@ -280,7 +280,7 @@
 
   .unit-del { background: linear-gradient(135deg, #ff7676, #e74c3c);
     color: #fff; border: none;
-    border-radius: 6px; padding: 7px 12px; font-size: 13px;
+    border-radius: 6px; padding: 5px 10px; font-size: 12px;
     cursor: pointer; font-weight: 800; font-family: inherit;
     white-space: nowrap;
     box-shadow: 0 2px 4px rgba(231,76,60,.3);
@@ -292,63 +292,95 @@
   .right-content.locked .unit-head { display: none !important; }
   .right-content.locked .unit-name-input { display: none !important; }
 
-  .unit-section { margin-bottom: 14px; }
+  .unit-section { margin-bottom: 10px; }
   .unit-section:last-child { margin-bottom: 0; }
 
-  .ctrl-table { width: 100%; border-collapse: separate;
-    border-spacing: 3px;
-    font-size: 16px;
+  .ctrl-table { width: 100%;
+    border-collapse: separate;
+    border-spacing: 2px;
+    font-size: 15px;
     font-weight: 700;
-    border-radius: 10px; overflow: hidden;
+    border-radius: 8px;
+    overflow: hidden;
     background: #cfd8dc;
-    padding: 3px;
-    box-shadow: 0 2px 8px rgba(100,140,180,.2); }
-  .ctrl-table td {
-    padding: 8px 12px; text-align: left;
-    max-width: 340px; overflow: hidden; text-overflow: ellipsis;
-    font-weight: 700;
-    font-size: 16px;
-    color: #1a2b3c;
-    border-radius: 5px;
-    transition: transform .1s, filter .15s;
-    white-space: nowrap;
-    letter-spacing: .2px;
-    position: relative; }
-  .ctrl-table td.has-dots {
-    padding: 6px 8px; }
+    padding: 2px;
+    table-layout: fixed;
+    box-shadow: 0 2px 6px rgba(100,140,180,.18); }
 
-  /* ── ਸੈੱਲ ਦੇ ਅੰਦਰ ਟੈਕਸਟ + ਐਕਸ਼ਨ ਇੱਕੋ ਲਾਈਨ ਵਿੱਚ ── */
-  .cell-inner {
+  .ctrl-table td {
+    padding: 6px 8px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 15px;
+    color: #1a2b3c;
+    border-radius: 4px;
+    transition: filter .1s;
+    vertical-align: middle;
+    line-height: 1.35;
+    position: relative;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: none;
+    overflow: visible; }
+
+  .ctrl-table td.has-dots {
+    padding-top: 24px; }
+
+  .cell-body {
     display: flex;
     align-items: center;
     gap: 10px;
-    min-height: 56px;
+    min-width: 0;
     width: 100%; }
-
   .cell-text {
     flex: 1 1 auto;
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap; }
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.35;
+    font-size: 15px; }
+
+  .cell-thumb {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2.5px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    cursor: pointer;
+    background: #f0f0f0;
+    transition: transform .15s, box-shadow .15s; }
+  .cell-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 14px rgba(0,0,0,.45); }
 
   .cell-dots {
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    right: 4px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 6px;
     pointer-events: none;
-    flex: 0 0 auto; }
+    z-index: 4;
+    min-height: 16px; }
 
   .dots-left-group {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     align-items: center;
     pointer-events: none;
     flex: 0 0 auto; }
 
   .cell-dot {
-    width: 22px;
-    height: 22px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
     cursor: pointer;
     pointer-events: auto;
@@ -364,56 +396,23 @@
     padding: 0;
     user-select: none; }
 
-  .cell-dot:hover { transform: scale(1.18); }
+  .cell-dot:hover { transform: scale(1.25); }
 
   .cell-dot.dot-add {
     background: radial-gradient(circle at 35% 30%, #7ff0b1, #27ae60 65%, #1a8a4a); }
   .cell-dot.dot-add:hover {
     box-shadow: 0 0 0 3px rgba(39,174,96,.4), 0 1px 4px rgba(0,0,0,.4); }
 
-  /* View dot — ਵੱਡੀ ਫੋਟੋ ਥੰਬਨੇਲ (58×58) */
-  .cell-dot.dot-view {
-    width: 58px;
-    height: 58px;
-    background-color: #2980b9;
-    background-image: linear-gradient(135deg, #90d4ff, #2980b9);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    border: 2px solid #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,.25); }
-  .cell-dot.dot-view:hover {
-    box-shadow: 0 0 0 3px rgba(41,128,185,.45), 0 2px 8px rgba(0,0,0,.35);
-    transform: scale(1.06); }
-
   .cell-dot.dot-del {
     background: radial-gradient(circle at 35% 30%, #ffb3b3, #e74c3c 65%, #a82e20);
     color: #fff;
-    font-size: 17px;
+    font-size: 11px;
     font-weight: 900;
     text-shadow: 0 1px 1px rgba(0,0,0,.5);
     padding-bottom: 1px; }
   .cell-dot.dot-del:hover {
     background: radial-gradient(circle at 35% 30%, #ff9999, #c0392b 65%, #7b1a10);
     box-shadow: 0 0 0 3px rgba(231,76,60,.4), 0 1px 4px rgba(0,0,0,.4); }
-
-  .cell-dot-spacer {
-    width: 22px;
-    height: 22px;
-    display: block;
-    flex: 0 0 auto;
-    pointer-events: none; }
-
-  .cell-dot-disabled {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: rgba(180,180,180,.35);
-    border: 1.5px dashed rgba(120,120,120,.5);
-    display: block;
-    flex: 0 0 auto;
-    pointer-events: none; }
 
   .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+1) { background: #e3f2fd; }
   .ctrl-table tr:nth-child(6n+1) td:nth-child(6n+2) { background: #fce4ec; }
@@ -455,15 +454,17 @@
   .ctrl-table tr:first-child td {
     background: linear-gradient(135deg, #34495e, #2c3e50) !important;
     color: #fff; font-weight: 900;
-    letter-spacing: .6px;
+    letter-spacing: .3px;
     text-transform: uppercase;
-    font-size: 14px;
+    font-size: 13.5px;
     text-shadow: 0 1px 2px rgba(0,0,0,.3);
-    padding-top: 10px; }
+    padding: 7px 8px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: anywhere; }
 
   .ctrl-table td:hover {
-    filter: brightness(0.94);
-    transform: scale(1.02); }
+    filter: brightness(0.94); }
 
   .modal-overlay { display: none; position: fixed; inset: 0;
     background: rgba(20,40,60,.5); z-index: 1000;
@@ -475,7 +476,7 @@
     box-shadow: 0 10px 40px rgba(0,0,0,.3);
     max-height: 92vh; overflow-y: auto; }
   .modal.pw-modal { max-width: 380px; }
-  .modal.photo-modal { max-width: 540px; }
+  .modal.photo-modal { max-width: 620px; }
   .modal h3 { margin: 0 0 16px; font-size: 17px;
     color: #6a3d9a;
     border-bottom: 2px solid #f0e6f6;
@@ -570,13 +571,13 @@
     background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
     border-radius: 10px;
     padding: 12px;
-    min-height: 240px;
-    max-height: 62vh;
+    min-height: 280px;
+    max-height: 65vh;
     overflow: hidden;
     border: 2px solid #e0e8ef; }
   .photo-container img {
     max-width: 100%;
-    max-height: 58vh;
+    max-height: 62vh;
     border-radius: 8px;
     box-shadow: 0 6px 18px rgba(0,0,0,.2);
     object-fit: contain;
@@ -596,7 +597,8 @@
     text-align: center;
     background: #f3e9ff;
     padding: 6px 12px;
-    border-radius: 6px; }
+    border-radius: 6px;
+    word-break: break-all; }
 
   .toast {
     position: fixed; bottom: 24px; left: 50%;
@@ -825,7 +827,7 @@ const MIN_ROWS = 25, MIN_COLS = 15, MAX_RENDER_ROWS = 1000;
 const UNLOCK_PASSWORD = '2005';
 const STORAGE_KEY = 'excelFormBuilderData_v1';
 const LOCK_STATE_KEY = 'excelFormBuilderLockState_v1';
-const PHOTO_DB_NAME = 'excelFormBuilderPhotosDB_v2';
+const PHOTO_DB_NAME = 'excelFormBuilderPhotosDB_v3';
 const PHOTO_STORE = 'handles';
 const PHOTO_DIR_KEY = 'photosDirHandle';
 const PHOTO_LAST_FILE_KEY = 'lastSourcePhotoFile';
@@ -834,9 +836,13 @@ const BUNDLED_EXCEL_FILE = 'Main ( Chak Dab - Ban Wala).xlsx';
 
 const AUTO_COMBO_CELL = 'A1';
 const AUTO_TABLE_START = 'A11';
-const AUTO_TABLE_END   = 'F16';
+const AUTO_TABLE_END   = 'F18';
 
-const THUMB_SIZE = 192; /* thumbnail resolution (px) — ਵੱਡੀ ਫੋਟੋ ਲਈ */
+const THUMB_SIZE = 120;
+
+/* ZIP file names inside the chosen folder */
+const ZIP_PICTURES = 'Pictures.zip';
+const ZIP_THUMBS   = 'thumbnails.zip';
 
 let hf = null;
 let sheets = {};
@@ -861,11 +867,14 @@ let sourceHlTimer = null;
 let pwPurpose = 'unlock';
 let toastTimer = null;
 
-/* Photo state */
+/* Photo state — ZIP archives in memory */
 let photosDirHandle = null;
-let photoExists = {};   // filename -> true
-let photoCache = {};    // filename -> dataURL (full photo)
-let thumbCache = {};    // filename -> dataURL (thumbnail)
+let picturesZip = null;      /* JSZip instance for Pictures.zip */
+let thumbnailsZip = null;    /* JSZip instance for thumbnails.zip */
+let photoExists = {};        /* filename -> true (in picturesZip) */
+let thumbExists = {};        /* filename -> true (in thumbnailsZip) */
+let photoCache = {};         /* filename -> dataURL (full photo) */
+let thumbCache = {};         /* filename -> dataURL (thumbnail) */
 let lastSourceFileHandle = null;
 
 /* =========================================================
@@ -927,62 +936,48 @@ function sanitizeNameForFile(name) {
   s = s.replace(/_+/g, '_').replace(/^_|_$/g, '');
   const reserved = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
   if (reserved.test(s)) s = '_' + s;
-  if (s.length > 150) s = s.slice(0, 150);
+  if (s.length > 100) s = s.slice(0, 100);
   return s;
 }
 
-/* ਨਵਾਂ: ਟੇਬਲ ਨਾਮ + ਮੁਖੀ (ਚੋਣ) + ਵਿਅਕਤੀ ਦਾ ਨਾਮ ਮਿਲਾ ਕੇ base ਨਾਮ ਬਣਾਓ */
-function photoBaseName(unit, cellText) {
-  const parts = [];
-  if (unit && unit.name) {
-    const n = String(unit.name).trim();
-    if (n) parts.push(n);
-  }
-  if (unit && unit.combo && unit.combo.value) {
-    const cv = String(unit.combo.value).trim();
-    if (cv) parts.push(cv);
-  }
-  if (cellText) {
-    const ct = String(cellText).trim();
-    if (ct) parts.push(ct);
-  }
-  if (!parts.length) return '';
-  return sanitizeNameForFile(parts.join('_'));
+function composePhotoBaseName(unitName, headName, personName) {
+  const parts = [unitName, headName, personName]
+    .map(s => sanitizeNameForFile(s))
+    .filter(s => s !== '');
+  if (parts.length === 0) return null;
+  return parts.join('_');
 }
 
-function photoFileNameFromUnitCell(unit, cellText) {
-  const base = photoBaseName(unit, cellText);
-  if (!base) return null;
-  return base + '.png';
-}
-
-function thumbFileNameFromPhoto(fileName) {
-  if (!fileName) return null;
-  return fileName.replace(/\.png$/i, '_thumb.png');
-}
-
-function isThumbFile(fileName) {
-  return /_thumb\.(png|jpg|jpeg|gif|webp|bmp)$/i.test(fileName);
-}
-
+/* Case-insensitive lookup in photoExists (inside ZIP) */
 function findExistingPhotoFile(name) {
   if (!name) return null;
-  if (photoExists[name] && !isThumbFile(name)) return name;
+  if (photoExists[name]) return name;
   const lower = name.toLowerCase();
   for (const k in photoExists) {
-    if (k.toLowerCase() === lower && !isThumbFile(k)) return k;
+    if (k.toLowerCase() === lower) return k;
   }
   return null;
 }
 
+/* Case-insensitive lookup in thumbExists (inside ZIP) */
 function findExistingThumbFile(name) {
   if (!name) return null;
-  if (photoExists[name] && isThumbFile(name)) return name;
+  if (thumbExists[name]) return name;
   const lower = name.toLowerCase();
-  for (const k in photoExists) {
-    if (k.toLowerCase() === lower && isThumbFile(k)) return k;
+  for (const k in thumbExists) {
+    if (k.toLowerCase() === lower) return k;
   }
   return null;
+}
+
+function getUnitHeadName(unit) {
+  if (!unit || !unit.combo) return '';
+  return sanitizeNameForFile(unit.combo.value || '');
+}
+
+function getUnitTableName(unit) {
+  if (!unit) return '';
+  return sanitizeNameForFile(unit.name || '');
 }
 
 /* =========================================================
@@ -1021,8 +1016,44 @@ async function dataUrlToBlob(dataUrl) {
   return await res.blob();
 }
 
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 /* =========================================================
-   Photos folder
+   ZIP file helpers (inside the selected folder)
+   ========================================================= */
+async function loadZipFromFolder(zipName) {
+  try {
+    const fh = await photosDirHandle.getFileHandle(zipName);
+    const file = await fh.getFile();
+    const buf = await file.arrayBuffer();
+    return await JSZip.loadAsync(buf);
+  } catch (e) {
+    /* Not found — return empty zip */
+    return new JSZip();
+  }
+}
+
+async function saveZipToFolder(zipName, zipInstance) {
+  const blob = await zipInstance.generateAsync({
+    type: 'blob',
+    compression: 'DEFLATE',
+    compressionOptions: { level: 6 }
+  });
+  const fh = await photosDirHandle.getFileHandle(zipName, { create: true });
+  const writable = await fh.createWritable();
+  await writable.write(blob);
+  await writable.close();
+}
+
+/* =========================================================
+   Photos folder (creates ZIP files inside)
    ========================================================= */
 function photosApiSupported() {
   return typeof window.showDirectoryPicker === 'function';
@@ -1055,6 +1086,30 @@ async function ensurePermission(handle, mode) {
   return false;
 }
 
+/* Load or create both ZIP files inside the folder */
+async function ensureZipFiles() {
+  if (!photosDirHandle) return false;
+  try {
+    picturesZip = await loadZipFromFolder(ZIP_PICTURES);
+    thumbnailsZip = await loadZipFromFolder(ZIP_THUMBS);
+
+    /* Ensure both ZIPs exist on disk at least once */
+    let needsSave = false;
+    try { await photosDirHandle.getFileHandle(ZIP_PICTURES); }
+    catch (e) { needsSave = true; }
+    try { await photosDirHandle.getFileHandle(ZIP_THUMBS); }
+    catch (e) { needsSave = true; }
+    if (needsSave) {
+      await saveZipToFolder(ZIP_PICTURES, picturesZip);
+      await saveZipToFolder(ZIP_THUMBS, thumbnailsZip);
+    }
+    return true;
+  } catch (e) {
+    console.error('ensureZipFiles err:', e);
+    return false;
+  }
+}
+
 async function choosePhotosFolder() {
   if (!photosApiSupported()) {
     alert('ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਫੋਲਡਰ ਚੋਣ ਸਮਰਥਿਤ ਨਹੀਂ।\nਕਿਰਪਾ ਕਰਕੇ Chrome ਜਾਂ Edge ਵਰਤੋ।');
@@ -1067,10 +1122,15 @@ async function choosePhotosFolder() {
       return false;
     }
     photosDirHandle = handle;
+    const ok = await ensureZipFiles();
+    if (!ok) {
+      showToast('ZIP ਫਾਈਲਾਂ ਨਹੀਂ ਬਣ ਸਕੀਆਂ', true);
+      return false;
+    }
     await saveDirHandleToDB(handle);
     await scanPhotosFolder();
     updatePhotosFolderButton();
-    showToast('ਫੋਟੋ ਫੋਲਡਰ ਸੈਟ ਹੋ ਗਿਆ ✓');
+    showToast('ਫੋਲਡਰ ਸੈਟ ਹੋ ਗਿਆ ✓ (' + ZIP_PICTURES + ' ਅਤੇ ' + ZIP_THUMBS + ' ਬਣ ਗਈਆਂ)');
     return true;
   } catch (err) {
     if (err && err.name !== 'AbortError') {
@@ -1090,7 +1150,10 @@ async function restorePhotosFolder() {
   photosDirHandle = handle;
   try {
     const perm = await handle.queryPermission({ mode: 'readwrite' });
-    if (perm === 'granted') await scanPhotosFolder();
+    if (perm === 'granted') {
+      await ensureZipFiles();
+      await scanPhotosFolder();
+    }
   } catch (e) {}
   updatePhotosFolderButton();
 }
@@ -1112,18 +1175,22 @@ function updatePhotosFolderButton() {
   }
 }
 
+/* Build existence maps from the two ZIP archives */
 async function scanPhotosFolder() {
   photoExists = {};
+  thumbExists = {};
   photoCache = {};
   thumbCache = {};
-  if (!photosDirHandle) return;
-  if (!await ensurePermission(photosDirHandle, 'read')) return;
+
+  if (!picturesZip || !thumbnailsZip) return;
+
   try {
-    for await (const entry of photosDirHandle.values()) {
-      if (entry.kind === 'file' && /\.(png|jpg|jpeg|gif|webp|bmp)$/i.test(entry.name)) {
-        photoExists[entry.name] = true;
-      }
-    }
+    picturesZip.forEach((relativePath, file) => {
+      if (!file.dir) photoExists[relativePath] = true;
+    });
+    thumbnailsZip.forEach((relativePath, file) => {
+      if (!file.dir) thumbExists[relativePath] = true;
+    });
   } catch (e) { console.warn('scanPhotosFolder err:', e); }
 }
 
@@ -1186,17 +1253,34 @@ async function pickPhotoFile() {
   });
 }
 
-/* ── Add photo ── */
+/* ── Save photo into Pictures.zip + thumbnail into thumbnails.zip ── */
 async function addPhotoForCellText(unit, cellText) {
-  const cleanBase = photoBaseName(unit, cellText);
-  if (!cleanBase) {
+  const tableName = getUnitTableName(unit);
+  const headName = getUnitHeadName(unit);
+  const personName = sanitizeNameForFile(cellText);
+
+  if (!personName) {
     showToast('ਪਹਿਲਾਂ ਸੈੱਲ ਵਿੱਚ ਨਾਮ ਲਿਖੋ ਜਾਂ ਚੁਣੋ', true);
     return;
   }
 
+  const baseName = composePhotoBaseName(tableName, headName, personName);
+  if (!baseName) {
+    showToast('ਫੋਟੋ ਨਾਮ ਨਹੀਂ ਬਣ ਸਕਿਆ', true);
+    return;
+  }
+  const fileName = baseName + '.png';
+
   if (!photosDirHandle) {
     const ok = await choosePhotosFolder();
     if (!ok) return;
+  }
+  if (!picturesZip || !thumbnailsZip) {
+    const ok = await ensureZipFiles();
+    if (!ok) {
+      showToast('ZIP ਫਾਈਲਾਂ ਨਹੀਂ ਖੁੱਲ੍ਹ ਸਕੀਆਂ', true);
+      return;
+    }
   }
   if (!await ensurePermission(photosDirHandle, 'readwrite')) {
     showToast('ਫੋਲਡਰ ਤੱਕ ਪਹੁੰਚ ਦੀ ਆਗਿਆ ਨਹੀਂ ਮਿਲੀ', true);
@@ -1206,16 +1290,15 @@ async function addPhotoForCellText(unit, cellText) {
   const file = await pickPhotoFile();
   if (!file) return;
 
-  const fileName  = cleanBase + '.png';
-  const thumbName = cleanBase + '_thumb.png';
-
   try {
-    const fileHandle = await photosDirHandle.getFileHandle(fileName, { create: true });
-    const writable = await fileHandle.createWritable();
-    await writable.write(file);
-    await writable.close();
+    /* 1) Add full photo into Pictures.zip */
+    picturesZip.file(fileName, file);
+    photoExists[fileName] = true;
 
+    /* 2) Generate + add thumbnail into thumbnails.zip */
     const fullDataUrl = await fileToDataURL(file);
+    photoCache[fileName] = fullDataUrl;
+
     let thumbDataUrl = null;
     try {
       thumbDataUrl = await createThumbnailDataUrl(fullDataUrl, THUMB_SIZE);
@@ -1224,19 +1307,17 @@ async function addPhotoForCellText(unit, cellText) {
     if (thumbDataUrl) {
       try {
         const thumbBlob = await dataUrlToBlob(thumbDataUrl);
-        const thumbHandle = await photosDirHandle.getFileHandle(thumbName, { create: true });
-        const thumbWritable = await thumbHandle.createWritable();
-        await thumbWritable.write(thumbBlob);
-        await thumbWritable.close();
-        photoExists[thumbName] = true;
+        thumbnailsZip.file(fileName, thumbBlob);
+        thumbExists[fileName] = true;
         thumbCache[fileName] = thumbDataUrl;
-      } catch (e) { console.warn('thumb save failed:', e); }
+      } catch (e) { console.warn('thumb add failed:', e); }
     }
 
-    photoExists[fileName] = true;
-    photoCache[fileName] = fullDataUrl;
+    /* 3) Persist both ZIP files back to disk */
+    await saveZipToFolder(ZIP_PICTURES, picturesZip);
+    await saveZipToFolder(ZIP_THUMBS, thumbnailsZip);
 
-    showToast('ਫੋਟੋ ਸੇਵ ਹੋ ਗਈ: ' + fileName + ' ✓');
+    showToast('ਫੋਟੋ ਸੇਵ ਹੋ ਗਈ ✓');
     renderUnits();
   } catch (err) {
     console.error('addPhotoForCellText err:', err);
@@ -1244,16 +1325,16 @@ async function addPhotoForCellText(unit, cellText) {
   }
 }
 
-/* ── Load full photo ── */
+/* ── Load full photo from Pictures.zip ── */
 async function loadPhotoByName(fileName) {
   if (!fileName) return null;
   if (photoCache[fileName]) return photoCache[fileName];
-  if (!photosDirHandle) return null;
-  if (!await ensurePermission(photosDirHandle, 'read')) return null;
+  if (!picturesZip) return null;
   try {
-    const fileHandle = await photosDirHandle.getFileHandle(fileName);
-    const file = await fileHandle.getFile();
-    const dataUrl = await fileToDataURL(file);
+    const f = picturesZip.file(fileName);
+    if (!f) return null;
+    const blob = await f.async('blob');
+    const dataUrl = await blobToDataURL(blob);
     photoCache[fileName] = dataUrl;
     return dataUrl;
   } catch (e) {
@@ -1262,24 +1343,24 @@ async function loadPhotoByName(fileName) {
   }
 }
 
-/* ── Load thumbnail ── */
+/* ── Load thumbnail from thumbnails.zip ── */
 async function loadThumbnailFor(photoFileName) {
   if (!photoFileName) return null;
   if (thumbCache[photoFileName]) return thumbCache[photoFileName];
-  if (!photosDirHandle) return null;
+  if (!thumbnailsZip) return null;
 
-  const thumbName = thumbFileNameFromPhoto(photoFileName);
-  const realThumb = findExistingThumbFile(thumbName);
-  if (realThumb && await ensurePermission(photosDirHandle, 'read')) {
-    try {
-      const fh = await photosDirHandle.getFileHandle(realThumb);
-      const f = await fh.getFile();
-      const dataUrl = await fileToDataURL(f);
+  const realThumbName = findExistingThumbFile(photoFileName) || photoFileName;
+  try {
+    const f = thumbnailsZip.file(realThumbName);
+    if (f) {
+      const blob = await f.async('blob');
+      const dataUrl = await blobToDataURL(blob);
       thumbCache[photoFileName] = dataUrl;
       return dataUrl;
-    } catch (e) { /* fall through */ }
-  }
+    }
+  } catch (e) { /* fall through */ }
 
+  /* Fallback: generate from full photo */
   const fullData = await loadPhotoByName(photoFileName);
   if (fullData) {
     try {
@@ -1291,21 +1372,19 @@ async function loadThumbnailFor(photoFileName) {
   return null;
 }
 
-/* ── View photo ── */
 async function viewPhotoForCellText(unit, cellText) {
-  const cleanBase = photoBaseName(unit, cellText);
-  if (!cleanBase) {
+  const tableName = getUnitTableName(unit);
+  const headName = getUnitHeadName(unit);
+  const personName = sanitizeNameForFile(cellText);
+
+  const baseName = composePhotoBaseName(tableName, headName, personName);
+  if (!baseName) {
     showToast('ਸੈੱਲ ਵਿੱਚ ਕੋਈ ਨਾਮ ਨਹੀਂ', true);
     return;
   }
-  const fileName = cleanBase + '.png';
+  const fileName = baseName + '.png';
 
-  const titleParts = [];
-  if (unit && unit.name) titleParts.push(unit.name);
-  if (unit && unit.combo && unit.combo.value) titleParts.push(unit.combo.value);
-  if (cellText) titleParts.push(cellText);
-  photoModalTitle.textContent = '📷 ' + titleParts.join(' — ');
-
+  photoModalTitle.textContent = '📷 ' + personName;
   photoImg.style.display = 'none';
   photoEmptyMsg.style.display = 'none';
   photoInfoLine.style.display = 'none';
@@ -1318,35 +1397,38 @@ async function viewPhotoForCellText(unit, cellText) {
     photoImg.src = dataUrl;
     photoImg.style.display = '';
     photoEmptyMsg.style.display = 'none';
-    photoInfoLine.textContent = 'ਫਾਈਲ: ' + realFile;
+    photoInfoLine.textContent = ZIP_PICTURES + ' → ' + realFile;
     photoInfoLine.style.display = '';
   } else {
     photoImg.src = '';
     photoImg.style.display = 'none';
     photoEmptyMsg.style.display = '';
     photoEmptyMsg.textContent = 'ਇਸ ਨਾਮ ਲਈ ਕੋਈ ਫੋਟੋ ਨਹੀਂ ਮਿਲੀ\n(' + fileName + ')';
-    photoInfoLine.textContent = 'ਫਾਈਲ: ' + fileName;
+    photoInfoLine.textContent = ZIP_PICTURES + ' → ' + fileName;
     photoInfoLine.style.display = '';
   }
 }
 
-/* ── Delete photo ── */
+/* ── Delete from BOTH ZIPs ── */
 async function deletePhotoForCellText(unit, cellText) {
-  const cleanBase = photoBaseName(unit, cellText);
-  if (!cleanBase) {
+  const tableName = getUnitTableName(unit);
+  const headName = getUnitHeadName(unit);
+  const personName = sanitizeNameForFile(cellText);
+
+  const baseName = composePhotoBaseName(tableName, headName, personName);
+  if (!baseName) {
     showToast('ਸੈੱਲ ਵਿੱਚ ਕੋਈ ਨਾਮ ਨਹੀਂ', true);
     return;
   }
-  const fileName  = cleanBase + '.png';
-  const thumbName = cleanBase + '_thumb.png';
-  const realFile  = findExistingPhotoFile(fileName) || fileName;
-  const realThumb = findExistingThumbFile(thumbName);
+  const fileName = baseName + '.png';
+  const realFile = findExistingPhotoFile(fileName) || fileName;
+  const realThumb = findExistingThumbFile(fileName) || fileName;
 
   if (!confirm('ਕੀ ਤੁਸੀਂ ਇਹ ਫੋਟੋ ਹਟਾਉਣੀ ਚਾਹੁੰਦੇ ਹੋ?\n\n(' + realFile + ')')) {
     return;
   }
 
-  if (!photosDirHandle) {
+  if (!picturesZip || !thumbnailsZip) {
     showToast('ਪਹਿਲਾਂ ਫੋਟੋ ਫੋਲਡਰ ਚੁਣੋ', true);
     return;
   }
@@ -1356,15 +1438,19 @@ async function deletePhotoForCellText(unit, cellText) {
   }
 
   try {
-    try { await photosDirHandle.removeEntry(realFile); } catch (e) {}
+    /* Remove from pictures ZIP */
+    if (picturesZip.file(realFile)) picturesZip.remove(realFile);
     delete photoExists[realFile];
     delete photoCache[realFile];
+
+    /* Remove from thumbnails ZIP */
+    if (thumbnailsZip.file(realThumb)) thumbnailsZip.remove(realThumb);
+    delete thumbExists[realThumb];
     delete thumbCache[realFile];
 
-    if (realThumb) {
-      try { await photosDirHandle.removeEntry(realThumb); } catch (e) {}
-      delete photoExists[realThumb];
-    }
+    /* Persist both ZIPs */
+    await saveZipToFolder(ZIP_PICTURES, picturesZip);
+    await saveZipToFolder(ZIP_THUMBS, thumbnailsZip);
 
     showToast('ਫੋਟੋ ਹਟਾ ਦਿੱਤੀ ਗਈ ✓');
     renderUnits();
@@ -2668,6 +2754,7 @@ function renderToolbarCombo(unit) {
     data2D.forEach(row => row.forEach(v => {
       if (v !== '' && !values.includes(v)) values.push(v);
     }));
+    if (combo.value && !values.includes(combo.value)) combo.value = '';
   }
 
   unitCombo.innerHTML = '';
@@ -2720,9 +2807,8 @@ function renderToolbarCombo(unit) {
         return;
       }
     }
-    showSrc();
-    /* combo ਬਦਲਣ 'ਤੇ ਫੋਟੋ ਫਾਈਲਨੇਮ ਬਦਲਦਾ ਹੈ — ਟੇਬਲ ਦੁਬਾਰਾ render ਕਰੋ */
     renderUnits();
+    setTimeout(showSrc, 30);
   };
 }
 
@@ -2776,6 +2862,9 @@ function renderUnits() {
 
   renderToolbarCombo(unit);
 
+  const tableName = getUnitTableName(unit);
+  const headName = getUnitHeadName(unit);
+
   controlsContainer.innerHTML = '';
   const card = document.createElement('div');
   card.className = 'unit-card';
@@ -2794,14 +2883,9 @@ function renderUnits() {
     unit.name = nameInput.value;
     const opt = unitSelector.querySelector(`option[value="${unit.id}"]`);
     if (opt) opt.textContent = unit.name;
-    /* ਨਾਮ ਬਦਲਣ 'ਤੇ ਫੋਟੋ ਫਾਈਲਨੇਮ ਬਦਲਦਾ ਹੈ — debounced render */
-    clearTimeout(nameInput._renderTimer);
-    nameInput._renderTimer = setTimeout(() => {
-      const cur = nameInput.value;
-      renderUnits();
-      const ni = controlsContainer.querySelector('.unit-name-input');
-      if (ni) { ni.value = cur; ni.focus(); }
-    }, 600);
+  });
+  nameInput.addEventListener('change', () => {
+    renderUnits();
   });
 
   const del = document.createElement('button');
@@ -2820,7 +2904,6 @@ function renderUnits() {
   head.appendChild(del);
   card.appendChild(head);
 
-  /* Table */
   const tableSec = document.createElement('div');
   tableSec.className = 'unit-section';
 
@@ -2843,88 +2926,87 @@ function renderUnits() {
         const td = document.createElement('td');
         td.title = v;
 
-        /* Header row: plain cell, no dots */
         if (isHeaderRow) {
           td.textContent = v;
           tr.appendChild(td);
           return;
         }
 
-        /* Non-header: text + actions inline */
-        const inner = document.createElement('div');
-        inner.className = 'cell-inner';
+        const hasText = !!(v && v.trim());
+        const baseName = hasText ? composePhotoBaseName(tableName, headName, v) : null;
+        const fileName = baseName ? baseName + '.png' : null;
+        const realFile = fileName ? findExistingPhotoFile(fileName) : null;
+        const hasPhoto = !!realFile;
+
+        const hasAddDot = !globalLocked && hasText;
+        const hasDelDot = hasPhoto && !globalLocked;
+        const hasAnyDot = hasAddDot || hasDelDot;
+
+        const body = document.createElement('div');
+        body.className = 'cell-body';
 
         const textSpan = document.createElement('span');
         textSpan.className = 'cell-text';
         textSpan.textContent = v;
-        textSpan.title = v;
-        inner.appendChild(textSpan);
+        body.appendChild(textSpan);
 
-        const baseFileName = photoFileNameFromUnitCell(unit, v);
-        const realFile = baseFileName ? findExistingPhotoFile(baseFileName) : null;
-        const hasPhoto = !!realFile;
-
-        const dots = document.createElement('div');
-        dots.className = 'cell-dots';
-
-        /* Add button */
-        if (!globalLocked && baseFileName) {
-          const addDot = document.createElement('span');
-          addDot.className = 'cell-dot dot-add';
-          addDot.title = 'ਫੋਟੋ ਐਡ ਕਰੋ (' + baseFileName + ')';
-          addDot.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            addPhotoForCellText(unit, v);
-          });
-          dots.appendChild(addDot);
-        } else if (!globalLocked && !baseFileName) {
-          const dis = document.createElement('span');
-          dis.className = 'cell-dot-disabled';
-          dis.title = 'ਪਹਿਲਾਂ ਸੈੱਲ ਵਿੱਚ ਨਾਮ ਲਿਖੋ';
-          dots.appendChild(dis);
-        } else {
-          const sp = document.createElement('span');
-          sp.className = 'cell-dot-spacer';
-          dots.appendChild(sp);
-        }
-
-        /* Delete button (if photo exists) */
-        if (hasPhoto && !globalLocked) {
-          const delDot = document.createElement('span');
-          delDot.className = 'cell-dot dot-del';
-          delDot.textContent = '×';
-          delDot.title = 'ਫੋਟੋ ਹਟਾਓ (' + realFile + ')';
-          delDot.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            deletePhotoForCellText(unit, v);
-          });
-          dots.appendChild(delDot);
-        }
-
-        /* View dot (thumbnail) — ਟੈਕਸਟ ਦੇ ਸਾਹਮਣੇ, ਵੱਡੀ */
         if (hasPhoto) {
-          const viewDot = document.createElement('span');
-          viewDot.className = 'cell-dot dot-view';
-          viewDot.title = 'ਫੋਟੋ ਦੇਖੋ (' + realFile + ')';
-          viewDot.addEventListener('click', (ev) => {
+          const img = document.createElement('img');
+          img.className = 'cell-thumb';
+          img.alt = v;
+          img.title = 'ਫੋਟੋ ਦੇਖੋ';
+          img.addEventListener('click', (ev) => {
             ev.stopPropagation();
             viewPhotoForCellText(unit, v);
           });
-          dots.appendChild(viewDot);
+          body.appendChild(img);
 
           (async () => {
             try {
               const thumbUrl = await loadThumbnailFor(realFile);
-              if (thumbUrl) {
-                viewDot.style.backgroundImage = 'url("' + thumbUrl + '")';
-              }
+              if (thumbUrl) img.src = thumbUrl;
             } catch (e) { /* ignore */ }
           })();
         }
 
-        inner.appendChild(dots);
-        td.classList.add('has-dots');
-        td.appendChild(inner);
+        td.appendChild(body);
+
+        if (hasAnyDot) {
+          const dots = document.createElement('div');
+          dots.className = 'cell-dots';
+
+          const leftGroup = document.createElement('div');
+          leftGroup.className = 'dots-left-group';
+
+          if (hasAddDot) {
+            const addDot = document.createElement('span');
+            addDot.className = 'cell-dot dot-add';
+            addDot.title = 'ਫੋਟੋ ਐਡ ਕਰੋ';
+            addDot.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              addPhotoForCellText(unit, v);
+            });
+            leftGroup.appendChild(addDot);
+          }
+
+          if (hasDelDot) {
+            const delDot = document.createElement('span');
+            delDot.className = 'cell-dot dot-del';
+            delDot.textContent = '×';
+            delDot.title = 'ਫੋਟੋ ਹਟਾਓ';
+            delDot.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              deletePhotoForCellText(unit, v);
+            });
+            leftGroup.appendChild(delDot);
+          }
+
+          dots.appendChild(leftGroup);
+
+          td.classList.add('has-dots');
+          td.appendChild(dots);
+        }
+
         tr.appendChild(td);
       });
       tbl.appendChild(tr);
